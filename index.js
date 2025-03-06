@@ -1,1 +1,1 @@
-import "./scripts/joinData.js";
+import "./scripts/process.js";
