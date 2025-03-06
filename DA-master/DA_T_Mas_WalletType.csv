@@ -1,0 +1,5 @@
+"wallet_type_code"|"wallet_type_desc_en"|"wallet_type_desc_th"|"last_upd_date"
+"30"|"Wallet managed by the custodian"|"กระเป๋าที่ลูกค้าบริหารจัดการด้วยผู้รับฝากทรัพย์สิน"|"2020-09-23 07:19:40"
+"20"|"Wallet managed by the investor"|"กระเป๋าที่ลูกค้าบริหารจัดการด้วยตัวเอง "|"2020-04-08 04:47:10"
+"10"|"Wallet managed by the intermediary"|"กระเป๋าที่ผู้ประกอบธุรกิจบริหารจัดการให้ลูกค้า"|"2020-04-08 04:47:10"
+"99"|"Other wallet"|"กระเป๋าอื่น ๆ"|"2020-04-08 04:47:10"
