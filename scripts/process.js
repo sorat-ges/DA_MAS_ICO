@@ -134,7 +134,14 @@ function processCusData(customers,fields) {
 
 function processOutStanding(customers,fields) {
   const processedData = customers.map(customer =>
-    fields.map(field => customer[field] || "").join("|")
+    fields.map(field => {
+      
+      if(field === "report_date"){
+        return report_date
+      }
+     
+     return customer[field] || ""
+    }).join("|")
   );
   return processedData
 }
@@ -164,6 +171,7 @@ function processProfilePortal(customers,fields) {
 const dbdNo = 111;
 const assetId = 4846;
 const yyyymmdd = 20250307;
+var report_date = "2025-03-07"
 
 const templates = [
   "ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv",
