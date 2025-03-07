@@ -16,7 +16,7 @@ const da_wallet_address = '0xD387ad5Ea23De2CaF7493992BF60866c16aE3F5D'
 const fiat_quantity = '-'
 const da_asset_isin = '-'
 const customer_code_amlo = '-'
-var countries,nationalities,titles
+var countries, nationalities, titles
 
 
 /**
@@ -40,8 +40,8 @@ function readMasterExcel(filePath, sheetName) {
   }
 
   const jsonData = xlsx.utils.sheet_to_json(sheet);
-  console.log(jsonData)
-  return Object.fromEntries(jsonData.map(row => [String(row["ID CARD #"]).trim(), String(row["จำนวนโทเคน"]).trim() || "0"]));
+
+  return jsonData;
 }
 
 /**
@@ -151,8 +151,8 @@ async function getTitleMapping() {
  */
 export async function generateData(templateFileName, dbdNo, assetId, yyyymmdd) {
   countries = await getCountryMapping();
-   nationalities = await getNationalityMapping();
-   titles = await getTitleMapping();
+  nationalities = await getNationalityMapping();
+  titles = await getTitleMapping();
   const customers = await getCustomerData();
   const templateFilePath = path.join("DA-template", templateFileName);
   const fields = await readTemplateFields(templateFilePath);
@@ -176,7 +176,7 @@ export async function generateData(templateFileName, dbdNo, assetId, yyyymmdd) {
     var processedData = processIdentification(customers, fields);
   }
   else if (templateFileName === 'ICOPortal_DA_ProfilePortal_{dbdNo}_{assetId}_{yyyymmdd}.csv') {
-    var processedData = processProfilePortal(customers, fields);
+    var processedData = processProfilePortal(fields);
   }
 
   const outputFilePath = getOutputFilePath(templateFileName, dbdNo, assetId, yyyymmdd);
@@ -235,7 +235,7 @@ function processCusData(customers, fields) {
         return '-'
       }
 
-      if(field == 'customer_id'){
+      if (field == 'customer_id') {
         return customer.tax_id
       }
 
@@ -325,9 +325,10 @@ function processIdentification(customers, fields) {
   return processedData
 }
 
-function processProfilePortal(customers, fields) {
-  const processedData = customers.map(customer =>
-    fields.map(field => customer[field] || "").join("|")
+function processProfilePortal(fields) {
+  const profilePortal = readMasterExcel("Example/KAVALON-DAMAS.xlsx", "ProfilePortal")
+  const processedData = profilePortal.map(data =>
+    fields.map(field => data[field] || "").join("|")
   );
   return processedData
 }
@@ -339,11 +340,11 @@ const yyyymmdd = 20250310;
 var report_date = "2025-03-10"
 
 const templates = [
-   "ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv",
-  // "ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv",
-  //"ICOPortal_DA_CusWallet_{dbdNo}_{assetId}_{yyyymmdd}.csv",
-  //"ICOPortal_DA_Identification_{dbdNo}_{assetId}_{yyyymmdd}.csv",
-  //"ICOPortal_DA_ProfilePortal_{dbdNo}_{assetId}_{yyyymmdd}.csv"
+  "ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  "ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  "ICOPortal_DA_CusWallet_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  "ICOPortal_DA_Identification_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  "ICOPortal_DA_ProfilePortal_{dbdNo}_{assetId}_{yyyymmdd}.csv"
 ];
 
 templates.forEach(template => generateData(template, dbdNo, assetId, yyyymmdd));
