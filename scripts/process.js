@@ -154,6 +154,10 @@ async function getLocationMapping() {
   return await readCSV(file, "|"); // Read as pipe-delimited
 }
 
+async function getIntialCustomer() {
+
+}
+
 /**
  * Generates a data file based on a given template.
  * @param {string} templateFileName - The template filename with placeholders.
@@ -173,7 +177,9 @@ export async function generateData(templateFileName, dbdNo, assetId, yyyymmdd) {
   const customers = await getCustomerData();
   const templateFilePath = path.join("DA-template", templateFileName);
   const fields = await readTemplateFields(templateFilePath);
+  const initialCustomers = readMasterExcel(masterFilePath, "Allocation report");
 
+  // console.log(initialCustomers)
   if (fields.length === 0) {
     console.error(`❌ No fields found in template: ${templateFilePath}`);
     return;
@@ -184,7 +190,7 @@ export async function generateData(templateFileName, dbdNo, assetId, yyyymmdd) {
     var processedData = processCusData(customers, fields);
   }
   else if (templateFileName === 'ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv') {
-    var processedData = processOutStanding(customers, fields);
+    var processedData = processOutStanding(customers, fields, initialCustomers);
   }
   else if (templateFileName === 'ICOPortal_DA_CusWallet_{dbdNo}_{assetId}_{yyyymmdd}.csv') {
     var processedData = processCusWallet(customers, fields);
@@ -263,77 +269,73 @@ function processCusData(customers, fields) {
   return processedData
 }
 
-function processOutStanding(customers, fields) {
-  const masterData = readMasterExcel(masterFilePath, sheetName);
-  // console.log(masterData[0]['จำนวนโทเคน']);
-
-  const processedData = customers.map(customer =>
-    fields.map(field => {
+function processOutStanding(customers, fields, initialCustomers) {
+  const processedData = initialCustomers.map(customer => {
+    const existCustomer = customers.find(x => {
+      const masterId = String(x['ID CARD #']).trim();
+      const customerId = String(customer.tax_id).trim();
+      return masterId === customerId;
+    });
+    
+    return fields.map(field => {
       if (field === 'da_asset_short_name') {
-        return da_asset_short_name
+        return da_asset_short_name;
       }
 
       if (field === 'da_asset_id') {
-        return da_asset_id
+        return da_asset_id;
       }
 
       if (field === 'is_digital_asset_outstanding') {
-        return is_digital_asset_outstanding
+        return is_digital_asset_outstanding;
       }
 
       if (field === 'fiat_asset_id') {
-        return fiat_asset_id
+        return fiat_asset_id;
       }
 
       if (field === 'da_wallet_address') {
-        return da_wallet_address
+        return da_wallet_address;
       }
 
       if (field === 'fiat_quantity') {
-        return fiat_quantity
+        return fiat_quantity;
       }
 
       if (field === 'da_asset_isin') {
-        return da_asset_isin
+        return da_asset_isin;
       }
 
       if (field === 'customer_code_amlo') {
-        return customer_code_amlo
+        return customer_code_amlo;
       }
 
       if (field === "da_quantity") {
 
-        const result = masterData.find(x => {
-          const masterId = String(x['ID CARD #']).trim();
-          const customerId = String(customer.tax_id).trim();
-          // console.log(`Comparing: "${masterId}" with "${customerId}"`); // Debugging
-          return masterId === customerId;
-      });
-  
-
-        return result ? result['จำนวนเงิน'] || "0":"0"; // Default to "0" if no match
+        return customer['จำนวนเงิน'] || "0";
       }
 
       if (field === "intermediary_id") {
-        return intermediary_id
+        return intermediary_id;
       }
 
       if (field === "table_id") {
-        return table_id
+        return table_id;
       }
 
       if (field === "is_update") {
-        return is_update
+        return is_update;
       }
 
       if (field === "report_date") {
-        return report_date
+        return report_date;
       }
 
-      return customer[field] || ""
-    }).join("|")
-  );
-  return processedData
+      return existCustomer[field] || "";
+    }).join("|");
+  });
+
+  return processedData;
 }
 
 function processCusWallet(customers, fields) {
@@ -348,7 +350,7 @@ function processIdentification(customers, fields) {
   console.log(customers);
   const processedData = customers.map(customer =>
     fields.map(field => {
-      if (field == 'contact_address_district' 
+      if (field == 'contact_address_district'
         || field == 'contact_address_province'
         || field == 'id_address_sub_district'
         || field == 'contact_address_sub_district'
@@ -368,7 +370,7 @@ function processIdentification(customers, fields) {
       }
 
       if (field == 'business_type_detail') {
-        if(customer.business_type == 'อื่น ๆ (โปรดระบุ)') return customer.business_type_detail || '-'
+        if (customer.business_type == 'อื่น ๆ (โปรดระบุ)') return customer.business_type_detail || '-'
         else return customer.business_type || '-'
       }
 
@@ -423,7 +425,7 @@ function processProfilePortal(fields) {
   return processedData
 }
 
- 
+
 function getBanks() {
   return [
     {
@@ -509,7 +511,7 @@ function getBusinessType() {
     },
   ]
 }
- 
+
 
 // 🚀 Generate multiple templates dynamically
 const dbdNo = 111;
@@ -518,10 +520,10 @@ const yyyymmdd = 20250310;
 var report_date = "2025-03-10"
 
 const templates = [
-  "ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv",
-  // "ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  //"ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  "ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv",
   // "ICOPortal_DA_CusWallet_{dbdNo}_{assetId}_{yyyymmdd}.csv",
-  "ICOPortal_DA_Identification_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  //"ICOPortal_DA_Identification_{dbdNo}_{assetId}_{yyyymmdd}.csv",
   // "ICOPortal_DA_ProfilePortal_{dbdNo}_{assetId}_{yyyymmdd}.csv"
 ];
 
