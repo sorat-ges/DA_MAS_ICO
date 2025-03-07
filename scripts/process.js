@@ -16,7 +16,7 @@ const da_wallet_address = '0xD387ad5Ea23De2CaF7493992BF60866c16aE3F5D'
 const fiat_quantity = '-'
 const da_asset_isin = '-'
 const customer_code_amlo = '-'
-var countries, nationalities, titles
+var countries, nationalities, titles,banks
 
 
 /**
@@ -153,6 +153,7 @@ export async function generateData(templateFileName, dbdNo, assetId, yyyymmdd) {
   countries = await getCountryMapping();
   nationalities = await getNationalityMapping();
   titles = await getTitleMapping();
+  banks = getBanks();
   const customers = await getCustomerData();
   const templateFilePath = path.join("DA-template", templateFileName);
   const fields = await readTemplateFields(templateFilePath);
@@ -237,6 +238,13 @@ function processCusData(customers, fields) {
 
       if (field == 'customer_id') {
         return customer.tax_id
+      }
+
+      if (field == 'bank_short_name') {
+        const result = banks.filter(bank =>
+          bank.bank.toLowerCase().includes(customer[field].toLowerCase())
+        );
+        return result[0]?.bank_short_name || "-"
       }
 
       return customer[field] || "-";
@@ -333,6 +341,57 @@ function processProfilePortal(fields) {
   return processedData
 }
 
+ 
+function getBanks() {
+  return [
+    {
+      bank: 'SCB',
+      bank_short_name: 'SICOTHBK'
+    },
+    {
+      bank: 'TMB',
+      bank_short_name: 'TMBKTHBK'
+    },
+    {
+      bank: 'KBANK',
+      bank_short_name: 'KASITHBK'
+    },
+    {
+      bank: 'BBL',
+      bank_short_name: 'BKKBTHBK'
+    },
+    {
+      bank: 'KTB',
+      bank_short_name: 'KRTHTHBK'
+    },
+    {
+      bank: 'TCRB',
+      bank_short_name: 'KRTHTHBK'
+    },
+    {
+      bank: 'KK',
+      bank_short_name: 'KKPBTHBK'
+    },
+    {
+      bank: 'GSB',
+      bank_short_name: 'GSBATHBK'
+    },
+    {
+      bank: 'BAY',
+      bank_short_name: 'AYUDTHBK'
+    },
+    {
+      bank: 'CIMBT',
+      bank_short_name: 'UBOBTHBK'
+    },
+    {
+      bank: 'UOBT',
+      bank_short_name: 'UOVBTHBK'
+    },
+  ]
+}
+ 
+
 // 🚀 Generate multiple templates dynamically
 const dbdNo = 111;
 const assetId = 4846;
@@ -341,10 +400,10 @@ var report_date = "2025-03-10"
 
 const templates = [
   "ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv",
-  "ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv",
-  "ICOPortal_DA_CusWallet_{dbdNo}_{assetId}_{yyyymmdd}.csv",
-  "ICOPortal_DA_Identification_{dbdNo}_{assetId}_{yyyymmdd}.csv",
-  "ICOPortal_DA_ProfilePortal_{dbdNo}_{assetId}_{yyyymmdd}.csv"
+  // "ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  // "ICOPortal_DA_CusWallet_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  // "ICOPortal_DA_Identification_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  // "ICOPortal_DA_ProfilePortal_{dbdNo}_{assetId}_{yyyymmdd}.csv"
 ];
 
 templates.forEach(template => generateData(template, dbdNo, assetId, yyyymmdd));
