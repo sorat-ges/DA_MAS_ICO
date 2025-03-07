@@ -2,7 +2,12 @@ import fs from "fs";
 import path from "path";
 import readline from "readline";
 
-// ฟังก์ชันอ่านไฟล์ CSV
+/**
+ * Reads a CSV file and returns an array of objects.
+ * @param {string} filePath - Path to the CSV file.
+ * @param {string} delimiter - Delimiter used in the CSV file.
+ * @returns {Promise<object[]>} Parsed data as an array of objects.
+ */
 async function readCSV(filePath, delimiter = "|") {
   if (!fs.existsSync(filePath)) {
     console.error(`❌ File not found: ${filePath}`);
@@ -18,15 +23,19 @@ async function readCSV(filePath, delimiter = "|") {
   for await (const line of rl) {
     const fields = line.split(delimiter).map(field => field.trim().replace(/^"|"$/g, ''));
     if (headers.length === 0) {
-      headers = fields;
+      headers = fields; // Set headers from first row
     } else {
-      const row = Object.fromEntries(headers.map((header, i) => [header, fields[i] || ""]));
-      rows.push(row);
+      rows.push(Object.fromEntries(headers.map((header, i) => [header, fields[i] || ""])));
     }
   }
   return rows;
 }
 
+/**
+ * Reads the template file and returns an array of field names.
+ * @param {string} templateFilePath - Path to the template file.
+ * @returns {Promise<string[]>} Array of field names.
+ */
 async function readTemplateFields(templateFilePath) {
   if (!fs.existsSync(templateFilePath)) {
     console.error(`❌ Template file not found: ${templateFilePath}`);
@@ -38,43 +47,54 @@ async function readTemplateFields(templateFilePath) {
 
   for await (const line of rl) {
     rl.close();
-    return line.split("|").map(field => field.trim()); // ใช้ | เป็น delimiter ของ template
+    return line.split("|").map(field => field.trim()); // Use '|' as delimiter for template
   }
   return [];
 }
 
-async function generateDataTemplate() {
-  const customerFile = "DA-Master/ico_customer_export_pipe.csv";
-
-  const customers = await readCSV(customerFile, "|");
-
-  return customers;
-}
-
-function getOutputFilePath(templateFileName,dbdNo, assetId, yyyymmdd) {
+/**
+ * Generates a valid output file path based on a template filename.
+ * @param {string} templateFileName - The template filename with placeholders.
+ * @param {number} dbdNo - Database number.
+ * @param {number} assetId - Asset ID.
+ * @param {number} yyyymmdd - Date in YYYYMMDD format.
+ * @returns {string} Output file path.
+ */
+function getOutputFilePath(templateFileName, dbdNo, assetId, yyyymmdd) {
   const outputDir = "output";
 
   if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir, { recursive: true });
   }
 
-  // Generate output filename by replacing placeholders
+  // Replace placeholders in the template filename
   const outputFileName = templateFileName
     .replace("{dbdNo}", dbdNo)
     .replace("{assetId}", assetId)
     .replace("{yyyymmdd}", yyyymmdd);
-  const outputFilePath = path.join(outputDir, outputFileName);
 
-  return outputFilePath;
+  return path.join(outputDir, outputFileName);
 }
 
-export async function GenerateCusData(templateFileName, dbdNo, assetId, yyyymmdd) {
-  const customers = await generateDataTemplate();
-  // อ่านข้อมูล
+/**
+ * Reads customer data from a predefined CSV file.
+ * @returns {Promise<object[]>} Parsed customer data.
+ */
+async function getCustomerData() {
+  const customerFile = "DA-Master/ico_customer_export_pipe.csv";
+  return await readCSV(customerFile, "|"); // Read as pipe-delimited
+}
+
+/**
+ * Generates a data file based on a given template.
+ * @param {string} templateFileName - The template filename with placeholders.
+ * @param {number} dbdNo - Database number.
+ * @param {number} assetId - Asset ID.
+ * @param {number} yyyymmdd - Date in YYYYMMDD format.
+ */
+export async function generateCusData(templateFileName, dbdNo, assetId, yyyymmdd) {
+  const customers = await getCustomerData();
   const templateFilePath = path.join("DA-template", templateFileName);
-
-
-  // ดึงฟิลด์จาก template
   const fields = await readTemplateFields(templateFilePath);
 
   if (fields.length === 0) {
@@ -82,21 +102,30 @@ export async function GenerateCusData(templateFileName, dbdNo, assetId, yyyymmdd
     return;
   }
 
-
-  // ประมวลผลข้อมูล
-  const processedData = customers.map(customer => {
-    return fields.map(field => customer[field] || "").join("|");
-  });
-
+  // Process data based on template fields
+  const processedData = customers.map(customer =>
+    fields.map(field => customer[field] || "").join("|")
+  );
 
   const outputFilePath = getOutputFilePath(templateFileName, dbdNo, assetId, yyyymmdd);
   fs.writeFileSync(outputFilePath, [fields.join("|"), ...processedData].join("\n"), "utf-8");
+
   console.log(`✅ File generated: ${outputFilePath}`);
 }
 
-// เรียกใช้ฟังก์ชัน โดยให้ชื่อไฟล์เปลี่ยนไปตามค่าพารามิเตอร์
-GenerateCusData("ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv", 111, 4846, 444);
-// generateDataTemplate("ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv", 111, 222, 333);
-// generateDataTemplate("ICOPortal_DA_CusWallet_{dbdNo}_{assetId}_{yyyymmdd}.csv", 111, 222, 333);
-// generateDataTemplate("ICOPortal_DA_Identification_{dbdNo}_{assetId}_{yyyymmdd}.csv", 111, 222, 333);
-// generateDataTemplate("ICOPortal_DA_ProfilePortal_{dbdNo}_{assetId}_{yyyymmdd}.csv", 111, 222, 333);
+// 🚀 Generate multiple templates dynamically
+const dbdNo = 111;
+const assetId = 4846;
+const yyyymmdd = 20250307;
+
+const templates = [
+  "ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  "ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  "ICOPortal_DA_CusWallet_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  "ICOPortal_DA_Identification_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  "ICOPortal_DA_ProfilePortal_{dbdNo}_{assetId}_{yyyymmdd}.csv"
+];
+
+
+
+generateCusData(templates[0],dbdNo,assetId,yyyymmdd)
