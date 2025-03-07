@@ -1,6 +1,38 @@
 import fs from "fs";
 import path from "path";
 import readline from "readline";
+import xlsx from "xlsx"; // Ensure you install this: `npm install xlsx`
+
+const masterFilePath = "Example/KAVALON Token allocation report 24.2.68.xlsx";
+const sheetName = "Allocation report";
+const table_id = "210180090007;210280090004;110180030006;110280020006";
+const intermediary_id = "0105561177671"
+const is_update = "F"
+
+/**
+ * Reads an Excel file and extracts data from a specified sheet.
+ * @param {string} filePath - Path to the Excel file.
+ * @param {string} sheetName - Sheet name to extract data from.
+ * @returns {object} Key-value mapping from ID CARD # to da_quantity.
+ */
+function readMasterExcel(filePath, sheetName) {
+  if (!fs.existsSync(filePath)) {
+    console.error(`❌ Master Excel file not found: ${filePath}`);
+    return {};
+  }
+
+  const workbook = xlsx.readFile(filePath);
+  const sheet = workbook.Sheets[sheetName];
+
+  if (!sheet) {
+    console.error(`❌ Sheet "${sheetName}" not found in ${filePath}`);
+    return {};
+  }
+
+  const jsonData = xlsx.utils.sheet_to_json(sheet);
+  console.log(jsonData)
+  return Object.fromEntries(jsonData.map(row => [String(row["ID CARD #"]).trim(), String(row["จำนวนโทเคน"]).trim() || "0"]));
+}
 
 /**
  * Reads a CSV file and returns an array of objects.
@@ -104,19 +136,19 @@ export async function generateData(templateFileName, dbdNo, assetId, yyyymmdd) {
 
   // Process data based on template fields
   if (templateFileName === 'ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv') {
-    var processedData = processCusData(customers,fields);
+    var processedData = processCusData(customers, fields);
   }
   else if (templateFileName === 'ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv') {
-    var processedData = processOutStanding(customers,fields);
+    var processedData = processOutStanding(customers, fields);
   }
   else if (templateFileName === 'ICOPortal_DA_CusWallet_{dbdNo}_{assetId}_{yyyymmdd}.csv') {
-    var processedData = processCusWallet(customers,fields);
+    var processedData = processCusWallet(customers, fields);
   }
   else if (templateFileName === 'ICOPortal_DA_Identification_{dbdNo}_{assetId}_{yyyymmdd}.csv') {
-    var processedData = processIdentification(customers,fields);
+    var processedData = processIdentification(customers, fields);
   }
   else if (templateFileName === 'ICOPortal_DA_ProfilePortal_{dbdNo}_{assetId}_{yyyymmdd}.csv') {
-    var processedData = processProfilePortal(customers,fields);
+    var processedData = processProfilePortal(customers, fields);
   }
 
   const outputFilePath = getOutputFilePath(templateFileName, dbdNo, assetId, yyyymmdd);
@@ -125,42 +157,60 @@ export async function generateData(templateFileName, dbdNo, assetId, yyyymmdd) {
   console.log(`✅ File generated: ${outputFilePath}`);
 }
 
-function processCusData(customers,fields) {
+function processCusData(customers, fields) {
   const processedData = customers.map(customer =>
     fields.map(field => customer[field] || "").join("|")
   );
   return processedData
 }
 
-function processOutStanding(customers,fields) {
+function processOutStanding(customers, fields) {
+  const masterData = readMasterExcel(masterFilePath, sheetName);
+  console.log(masterData);
+
   const processedData = customers.map(customer =>
     fields.map(field => {
-      
-      if(field === "report_date"){
+      if (field === "da_quantity") {
+        return masterData[customer.tax_id] || "0"; // Default to "0" if no match
+      }
+
+      if (field === "intermediary_id") {
+        return intermediary_id
+      }
+
+      if (field === "table_id") {
+        return table_id
+      }
+
+      if (field === "is_update") {
+        return is_update
+      }
+
+      if (field === "report_date") {
         return report_date
       }
-     
-     return customer[field] || ""
+
+      return customer[field] || ""
     }).join("|")
   );
   return processedData
 }
 
-function processCusWallet(customers,fields) {
+function processCusWallet(customers, fields) {
   const processedData = customers.map(customer =>
     fields.map(field => customer[field] || "").join("|")
   );
   return processedData
 }
 
-function processIdentification(customers,fields) {
+function processIdentification(customers, fields) {
   const processedData = customers.map(customer =>
     fields.map(field => customer[field] || "").join("|")
   );
   return processedData
 }
 
-function processProfilePortal(customers,fields) {
+function processProfilePortal(customers, fields) {
   const processedData = customers.map(customer =>
     fields.map(field => customer[field] || "").join("|")
   );
@@ -174,11 +224,11 @@ const yyyymmdd = 20250307;
 var report_date = "2025-03-07"
 
 const templates = [
-  "ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  // "ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv",
   "ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv",
-  "ICOPortal_DA_CusWallet_{dbdNo}_{assetId}_{yyyymmdd}.csv",
-  "ICOPortal_DA_Identification_{dbdNo}_{assetId}_{yyyymmdd}.csv",
-  "ICOPortal_DA_ProfilePortal_{dbdNo}_{assetId}_{yyyymmdd}.csv"
+  //"ICOPortal_DA_CusWallet_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  //"ICOPortal_DA_Identification_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  //"ICOPortal_DA_ProfilePortal_{dbdNo}_{assetId}_{yyyymmdd}.csv"
 ];
 
 templates.forEach(template => generateData(template, dbdNo, assetId, yyyymmdd));
