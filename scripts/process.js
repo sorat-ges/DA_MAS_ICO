@@ -43,10 +43,20 @@ async function readTemplateFields(templateFilePath) {
   return [];
 }
 
-export async function generateDataTemplate(templateFileName, dbdNo, assetId, yyyymmdd) {
+async function generateDataTemplate() {
   const customerFile = "DA-Master/ico_customer_export_pipe.csv";
-  const templateFilePath = path.join("DA-template", templateFileName);
+
+  const customers = await readCSV(customerFile, "|");
+
+  return customers;
+}
+
+function getOutputFilePath(templateFileName,dbdNo, assetId, yyyymmdd) {
   const outputDir = "output";
+
+  if (!fs.existsSync(outputDir)) {
+    fs.mkdirSync(outputDir, { recursive: true });
+  }
 
   // Generate output filename by replacing placeholders
   const outputFileName = templateFileName
@@ -55,14 +65,14 @@ export async function generateDataTemplate(templateFileName, dbdNo, assetId, yyy
     .replace("{yyyymmdd}", yyyymmdd);
   const outputFilePath = path.join(outputDir, outputFileName);
 
-  if (!fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir, { recursive: true });
-  }
+  return outputFilePath;
+}
 
+export async function GenerateCusData(templateFileName, dbdNo, assetId, yyyymmdd) {
+  const customers = await generateDataTemplate();
   // อ่านข้อมูล
-  const customers = await readCSV(customerFile, "|");
+  const templateFilePath = path.join("DA-template", templateFileName);
 
-  console.log(customers);
 
   // ดึงฟิลด์จาก template
   const fields = await readTemplateFields(templateFilePath);
@@ -72,20 +82,20 @@ export async function generateDataTemplate(templateFileName, dbdNo, assetId, yyy
     return;
   }
 
+
   // ประมวลผลข้อมูล
   const processedData = customers.map(customer => {
     return fields.map(field => customer[field] || "").join("|");
   });
 
-  console.log(processedData);
 
-  // เขียนไฟล์
+  const outputFilePath = getOutputFilePath(templateFileName, dbdNo, assetId, yyyymmdd);
   fs.writeFileSync(outputFilePath, [fields.join("|"), ...processedData].join("\n"), "utf-8");
   console.log(`✅ File generated: ${outputFilePath}`);
 }
 
 // เรียกใช้ฟังก์ชัน โดยให้ชื่อไฟล์เปลี่ยนไปตามค่าพารามิเตอร์
-generateDataTemplate("ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv", 111, 222, 333);
+GenerateCusData("ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv", 111, 4846, 444);
 // generateDataTemplate("ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv", 111, 222, 333);
 // generateDataTemplate("ICOPortal_DA_CusWallet_{dbdNo}_{assetId}_{yyyymmdd}.csv", 111, 222, 333);
 // generateDataTemplate("ICOPortal_DA_Identification_{dbdNo}_{assetId}_{yyyymmdd}.csv", 111, 222, 333);
