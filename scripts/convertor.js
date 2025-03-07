@@ -35,7 +35,7 @@ async function convertCSVDelimiter(inputFilePath, outputFilePath) {
 }
 
 // เรียกใช้งานฟังก์ชัน
-const inputCSV = "DA-Master/ico_customer_export.csv"; // ไฟล์ input
+const inputCSV = "DA-Master/ico_customer_export-2.csv"; // ไฟล์ input
 const outputCSV = "DA-Master/ico_customer_export_pipe.csv"; // ไฟล์ output
 
 convertCSVDelimiter(inputCSV, outputCSV);

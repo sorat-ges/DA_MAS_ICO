@@ -419,10 +419,10 @@ var report_date = "2025-03-10"
 
 const templates = [
   // "ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv",
-  // "ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  "ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv",
   // "ICOPortal_DA_CusWallet_{dbdNo}_{assetId}_{yyyymmdd}.csv",
   // "ICOPortal_DA_Identification_{dbdNo}_{assetId}_{yyyymmdd}.csv",
-  "ICOPortal_DA_ProfilePortal_{dbdNo}_{assetId}_{yyyymmdd}.csv"
+  // "ICOPortal_DA_ProfilePortal_{dbdNo}_{assetId}_{yyyymmdd}.csv"
 ];
 
-templates.forEach(template => generateData(template, dbdNo, assetId, yyyymmdd));
+// templates.forEach(template => generateData(template, dbdNo, assetId, yyyymmdd));
