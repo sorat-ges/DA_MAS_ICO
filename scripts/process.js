@@ -18,7 +18,7 @@ const fiat_quantity = '-'
 const da_asset_isin = '-'
 const customer_code_amlo = '-'
 var countries, nationalities, titles, banks, locations, businessTypes
-
+var report_date = "2025-03-10"
 
 /**
  * Reads an Excel file and extracts data from a specified sheet.
@@ -187,16 +187,16 @@ export async function generateData(templateFileName, dbdNo, assetId, yyyymmdd) {
 
   // Process data based on template fields
   if (templateFileName === 'ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv') {
-    var processedData = processCusData(customers, fields);
+    var processedData = processCusData(customers, fields, initialCustomers);
   }
   else if (templateFileName === 'ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv') {
     var processedData = processOutStanding(customers, fields, initialCustomers);
   }
   else if (templateFileName === 'ICOPortal_DA_CusWallet_{dbdNo}_{assetId}_{yyyymmdd}.csv') {
-    var processedData = processCusWallet(customers, fields);
+    var processedData = processCusWallet(customers, fields, initialCustomers);
   }
   else if (templateFileName === 'ICOPortal_DA_Identification_{dbdNo}_{assetId}_{yyyymmdd}.csv') {
-    var processedData = processIdentification(customers, fields);
+    var processedData = processIdentification(customers, fields, initialCustomers);
   }
   else if (templateFileName === 'ICOPortal_DA_ProfilePortal_{dbdNo}_{assetId}_{yyyymmdd}.csv') {
     var processedData = processProfilePortal(fields);
@@ -208,30 +208,38 @@ export async function generateData(templateFileName, dbdNo, assetId, yyyymmdd) {
   console.log(`✅ File generated: ${outputFilePath}`);
 }
 
-function processCusData(customers, fields) {
-  const processedData = customers.map(customer =>
-    fields.map(field => {
-      if (field == 'country') {
-        const result = countries.filter(country => country.country_full_name_en.toLowerCase().includes(customer[field].toLowerCase()));
+function processCusData(customers, fields, initialCustomers) {
+
+  const processedData = initialCustomers.map(customer => {
+    const existCustomer = customers.find(x => {
+      const masterId = String(customer['ID CARD #']).trim();
+      const customerId = String(x.tax_id).trim();
+      return masterId === customerId;
+    });
+    console.log(existCustomer)
+
+    return fields.map(field => {
+      if (field == 'country' && existCustomer) {
+        const result = countries.filter(country => country.country_full_name_en.toLowerCase().includes(existCustomer[field].toLowerCase()));
         return result[0]?.country_code || ""
       }
 
-      if (field == 'is_thai_nationality' && customer.nationality == 'THAI') {
+      if (field == 'is_thai_nationality' && existCustomer && existCustomer.nationality == 'THAI') {
         return "T"
-      } else if (field == 'is_thai_nationality' && customer.nationality != 'THAI') {
+      } else if (field == 'is_thai_nationality' && existCustomer && existCustomer.nationality != 'THAI') {
         return "F"
       }
 
-      if (field == 'opening_account_date') {
-        return customer[field].substring(0, 10);
+      if (field == 'opening_account_date' && existCustomer) {
+        return existCustomer[field].substring(0, 10);
       }
 
       if (field == 'report_date') {
-        return '2025-03-10'
+        return report_date
       }
 
-      if (field == 'nationality') {
-        const result = nationalities.filter(nationality => nationality.nationality_name_en.toLowerCase() == customer[field].toLowerCase());
+      if (field == 'nationality' && existCustomer) {
+        const result = nationalities.filter(nationality => nationality.nationality_name_en.toLowerCase() == existCustomer[field].toLowerCase());
         return result[0]?.nationality_code || ""
       }
 
@@ -243,8 +251,8 @@ function processCusData(customers, fields) {
         return 'F'
       }
 
-      if (field == 'name_title') {
-        const result = titles.filter(title => title.title_name_en.toLowerCase() == customer[field].toLowerCase());
+      if (field == 'name_title' && existCustomer) {
+        const result = titles.filter(title => title.title_name_en.toLowerCase() == existCustomer[field].toLowerCase());
         return result[0]?.title_code || "-"
       }
 
@@ -253,30 +261,30 @@ function processCusData(customers, fields) {
       }
 
       if (field == 'customer_id') {
-        return customer.tax_id
+        return customer['ID CARD #']
       }
 
-      if (field == 'bank_short_name') {
-        const result = banks.filter(bank => bank.bank.toLowerCase() == customer[field].toLowerCase());
+      if (field == 'bank_short_name' && existCustomer) {
+        const result = banks.filter(bank => bank.bank.toLowerCase() == existCustomer[field].toLowerCase());
         return result[0]?.bank_short_name || "-"
       }
 
-      return customer[field] || "-";
+      return existCustomer ? existCustomer[field] || "-" : '';
     }).join("|")
-  );
+  });
 
-  console.log(processedData);
+  // console.log(processedData);
   return processedData
 }
 
 function processOutStanding(customers, fields, initialCustomers) {
   const processedData = initialCustomers.map(customer => {
     const existCustomer = customers.find(x => {
-      const masterId = String(x['ID CARD #']).trim();
-      const customerId = String(customer.tax_id).trim();
+      const masterId = String(customer['ID CARD #']).trim();
+      const customerId = String(x.tax_id).trim();
       return masterId === customerId;
     });
-    
+
     return fields.map(field => {
       if (field === 'da_asset_short_name') {
         return da_asset_short_name;
@@ -331,34 +339,47 @@ function processOutStanding(customers, fields, initialCustomers) {
         return report_date;
       }
 
-      return existCustomer[field] || "";
+      return existCustomer ? existCustomer[field] || "" : "";
     }).join("|");
   });
 
   return processedData;
 }
 
-function processCusWallet(customers, fields) {
-  const processedData = customers.map(customer =>
-    fields.map(field => customer[field] || "").join("|")
-  );
+function processCusWallet(customers, fields, initialCustomers) {
+  const processedData = initialCustomers.map(customer => {
+    const existCustomer = customers.find(x => {
+      const masterId = String(customer['ID CARD #']).trim();
+      const customerId = String(x.tax_id).trim();
+      return masterId === customerId;
+    });
+    return fields.map(field => {
+      existCustomer ? existCustomer[field] || "" : ""
+    }).join("|")
+  });
   return processedData
 }
 
-function processIdentification(customers, fields) {
+function processIdentification(customers, fields, initialCustomers) {
   console.log(fields);
   console.log(customers);
-  const processedData = customers.map(customer =>
-    fields.map(field => {
-      if (field == 'contact_address_district'
+  const processedData = initialCustomers.map(customer => {
+    const existCustomer = customers.find(x => {
+      const masterId = String(customer['ID CARD #']).trim();
+      const customerId = String(x.tax_id).trim();
+      return masterId === customerId;
+    });
+    return fields.map(field => {
+      if (existCustomer && (field == 'contact_address_district'
         || field == 'contact_address_province'
         || field == 'id_address_sub_district'
         || field == 'contact_address_sub_district'
         || field == 'id_address_district'
         || field == 'id_address_province'
+      )
       ) {
-        const result = locations.filter(location => location.sub_district_name_en.toLowerCase() == customer.contact_address_sub_district.toLowerCase());
-        return result[0]?.location_code || "**" + customer.contact_address_sub_district
+        const result = locations.filter(location => location.sub_district_name_en.toLowerCase() == existCustomer.contact_address_sub_district.toLowerCase());
+        return result[0]?.location_code || "**" + existCustomer.contact_address_sub_district
       }
 
       if (field == 'table_id' || field == 'intermediary_id') {
@@ -369,18 +390,18 @@ function processIdentification(customers, fields) {
         return 'F'
       }
 
-      if (field == 'business_type_detail') {
-        if (customer.business_type == 'อื่น ๆ (โปรดระบุ)') return customer.business_type_detail || '-'
-        else return customer.business_type || '-'
+      if (field == 'business_type_detail' && existCustomer) {
+        if (existCustomer.business_type == 'อื่น ๆ (โปรดระบุ)') return existCustomer.business_type_detail || '-'
+        else return existCustomer.business_type || '-'
       }
 
-      if (field == 'business_type') {
-        const result = businessTypes.filter(business => business.detail == customer.business_type);
+      if (field == 'business_type' && existCustomer) {
+        const result = businessTypes.filter(business => business.detail == existCustomer.business_type);
         return result[0]?.type || "-"
       }
 
-      if (field == 'nationality') {
-        const result = nationalities.filter(nationality => nationality.nationality_name_en.toLowerCase() == customer[field].toLowerCase());
+      if (field == 'nationality' && existCustomer) {
+        const result = nationalities.filter(nationality => nationality.nationality_name_en.toLowerCase() == existCustomer[field].toLowerCase());
         return result[0]?.nationality_code || ""
       }
 
@@ -388,18 +409,18 @@ function processIdentification(customers, fields) {
         return '2025-03-10'
       }
 
-      if (field == 'opening_service_location_country' || field == 'country') {
-        const result = countries.filter(country => country.country_full_name_en.toLowerCase().includes(customer.country.toLowerCase()));
+      if ((field == 'opening_service_location_country' || field == 'country') && existCustomer) {
+        const result = countries.filter(country => country.country_full_name_en.toLowerCase().includes(existCustomer.country.toLowerCase()));
         return result[0]?.country_code || ""
       }
 
-      if (field == 'opening_account_date') {
-        return customer[field].substring(0, 10);
+      if (field == 'opening_account_date' && existCustomer) {
+        return existCustomer[field].substring(0, 10);
       }
 
-      if (field == 'is_thai_nationality' && customer.nationality == 'THAI') {
+      if (field == 'is_thai_nationality' && existCustomer && existCustomer.nationality == 'THAI') {
         return "T"
-      } else if (field == 'is_thai_nationality' && customer.nationality != 'THAI') {
+      } else if (field == 'is_thai_nationality' && existCustomer && existCustomer.nationality != 'THAI') {
         return "F"
       }
 
@@ -411,9 +432,10 @@ function processIdentification(customers, fields) {
         return '0103800191'
       }
 
-      return customer[field] || "-";
+      return existCustomer ? existCustomer[field] || "" : '';
     }).join("|")
-  );
+  });
+
   return processedData
 }
 
@@ -517,13 +539,13 @@ function getBusinessType() {
 const dbdNo = 111;
 const assetId = 4846;
 const yyyymmdd = 20250310;
-var report_date = "2025-03-10"
+
 
 const templates = [
   //"ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv",
-  "ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv",
-  // "ICOPortal_DA_CusWallet_{dbdNo}_{assetId}_{yyyymmdd}.csv",
-  //"ICOPortal_DA_Identification_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  //  "ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  "ICOPortal_DA_CusWallet_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  "ICOPortal_DA_Identification_{dbdNo}_{assetId}_{yyyymmdd}.csv",
   // "ICOPortal_DA_ProfilePortal_{dbdNo}_{assetId}_{yyyymmdd}.csv"
 ];
 
