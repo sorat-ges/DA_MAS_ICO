@@ -41,7 +41,13 @@ function readMasterExcel(filePath, sheetName) {
 
   const jsonData = xlsx.utils.sheet_to_json(sheet);
 
-  return jsonData;
+  return jsonData.map(item => {
+    return Object.fromEntries(
+      Object.entries(item).map(([key, value]) => {
+        return [key.replace(/['"]/g, ''), value]; // Remove quotes from keys
+      })
+    );
+  });
 }
 
 /**
@@ -257,7 +263,7 @@ function processCusData(customers, fields) {
 
 function processOutStanding(customers, fields) {
   const masterData = readMasterExcel(masterFilePath, sheetName);
-  console.log(masterData);
+  // console.log(masterData[0]['จำนวนโทเคน']);
 
   const processedData = customers.map(customer =>
     fields.map(field => {
@@ -294,7 +300,16 @@ function processOutStanding(customers, fields) {
       }
 
       if (field === "da_quantity") {
-        return masterData[customer.tax_id] || "0"; // Default to "0" if no match
+
+        const result = masterData.find(x => {
+          const masterId = String(x['ID CARD #']).trim();
+          const customerId = String(customer.tax_id).trim();
+          // console.log(`Comparing: "${masterId}" with "${customerId}"`); // Debugging
+          return masterId === customerId;
+      });
+  
+
+        return result ? result['จำนวนเงิน'] || "0":"0"; // Default to "0" if no match
       }
 
       if (field === "intermediary_id") {
@@ -403,11 +418,11 @@ const yyyymmdd = 20250310;
 var report_date = "2025-03-10"
 
 const templates = [
-  "ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  // "ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv",
   // "ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv",
   // "ICOPortal_DA_CusWallet_{dbdNo}_{assetId}_{yyyymmdd}.csv",
   // "ICOPortal_DA_Identification_{dbdNo}_{assetId}_{yyyymmdd}.csv",
-  // "ICOPortal_DA_ProfilePortal_{dbdNo}_{assetId}_{yyyymmdd}.csv"
+  "ICOPortal_DA_ProfilePortal_{dbdNo}_{assetId}_{yyyymmdd}.csv"
 ];
 
 templates.forEach(template => generateData(template, dbdNo, assetId, yyyymmdd));
