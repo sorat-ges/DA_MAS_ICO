@@ -5,9 +5,18 @@ import xlsx from "xlsx"; // Ensure you install this: `npm install xlsx`
 
 const masterFilePath = "Example/KAVALON Token allocation report 24.2.68.xlsx";
 const sheetName = "Allocation report";
-const table_id = "210180090007;210280090004;110180030006;110280020006";
+const table_id = "0105561177671";
 const intermediary_id = "0105561177671"
 const is_update = "F"
+const da_asset_short_name = 'KAVALON'
+const da_asset_id = 'THDA0000000021'
+const is_digital_asset_outstanding = 'T'
+const fiat_asset_id = '-'
+const da_wallet_address = '0xD387ad5Ea23De2CaF7493992BF60866c16aE3F5D'
+const fiat_quantity = '-'
+const da_asset_isin = '-'
+const customer_code_amlo = '-'
+
 
 /**
  * Reads an Excel file and extracts data from a specified sheet.
@@ -170,6 +179,38 @@ function processOutStanding(customers, fields) {
 
   const processedData = customers.map(customer =>
     fields.map(field => {
+      if(field === 'da_asset_short_name'){
+        return da_asset_short_name
+      }
+
+      if(field === 'da_asset_id'){
+        return da_asset_id
+      }
+
+      if(field === 'is_digital_asset_outstanding'){
+        return is_digital_asset_outstanding
+      }
+
+      if(field === 'fiat_asset_id'){
+        return fiat_asset_id
+      }
+
+      if(field === 'da_wallet_address'){
+        return da_wallet_address
+      }
+
+      if(field === 'fiat_quantity'){
+        return fiat_quantity
+      }
+
+      if(field === 'da_asset_isin'){
+        return da_asset_isin
+      }
+
+      if(field === 'customer_code_amlo'){
+        return customer_code_amlo
+      }
+
       if (field === "da_quantity") {
         return masterData[customer.tax_id] || "0"; // Default to "0" if no match
       }
@@ -220,8 +261,8 @@ function processProfilePortal(customers, fields) {
 // 🚀 Generate multiple templates dynamically
 const dbdNo = 111;
 const assetId = 4846;
-const yyyymmdd = 20250307;
-var report_date = "2025-03-07"
+const yyyymmdd = 20250310;
+var report_date = "2025-03-10"
 
 const templates = [
   // "ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv",
