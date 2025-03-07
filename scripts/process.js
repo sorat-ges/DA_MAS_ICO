@@ -388,6 +388,10 @@ function getBanks() {
       bank: 'UOBT',
       bank_short_name: 'UOVBTHBK'
     },
+    {
+      bank: 'LH BANK',
+      bank_short_name: 'LAHRTHB2'
+    },
   ]
 }
  
