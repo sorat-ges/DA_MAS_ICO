@@ -347,14 +347,16 @@ function processOutStanding(customers, fields, initialCustomers) {
 }
 
 function processCusWallet(customers, fields, initialCustomers) {
+  // console.log(fields);
   const processedData = initialCustomers.map(customer => {
     const existCustomer = customers.find(x => {
       const masterId = String(customer['ID CARD #']).trim();
       const customerId = String(x.tax_id).trim();
       return masterId === customerId;
     });
+    console.log(existCustomer)
     return fields.map(field => {
-      existCustomer ? existCustomer[field] || "" : ""
+      return existCustomer ? existCustomer[field] || "" : ""
     }).join("|")
   });
   return processedData
@@ -542,8 +544,8 @@ const yyyymmdd = 20250310;
 
 
 const templates = [
-  //"ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv",
-  //  "ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  "ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  "ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv",
   "ICOPortal_DA_CusWallet_{dbdNo}_{assetId}_{yyyymmdd}.csv",
   "ICOPortal_DA_Identification_{dbdNo}_{assetId}_{yyyymmdd}.csv",
   // "ICOPortal_DA_ProfilePortal_{dbdNo}_{assetId}_{yyyymmdd}.csv"
