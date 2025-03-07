@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { title } from "process";
 import readline from "readline";
 import xlsx from "xlsx"; // Ensure you install this: `npm install xlsx`
 
@@ -16,7 +17,7 @@ const da_wallet_address = '0xD387ad5Ea23De2CaF7493992BF60866c16aE3F5D'
 const fiat_quantity = '-'
 const da_asset_isin = '-'
 const customer_code_amlo = '-'
-var countries, nationalities, titles,banks
+var countries, nationalities, titles, banks, locations, businessTypes
 
 
 /**
@@ -148,6 +149,11 @@ async function getTitleMapping() {
   return await readCSV(file, "|"); // Read as pipe-delimited
 }
 
+async function getLocationMapping() {
+  const file = "DA-Master/DA_T_Mas_Location.csv";
+  return await readCSV(file, "|"); // Read as pipe-delimited
+}
+
 /**
  * Generates a data file based on a given template.
  * @param {string} templateFileName - The template filename with placeholders.
@@ -155,11 +161,15 @@ async function getTitleMapping() {
  * @param {number} assetId - Asset ID.
  * @param {number} yyyymmdd - Date in YYYYMMDD format.
  */
+
+
 export async function generateData(templateFileName, dbdNo, assetId, yyyymmdd) {
   countries = await getCountryMapping();
   nationalities = await getNationalityMapping();
   titles = await getTitleMapping();
   banks = getBanks();
+  locations = await getLocationMapping();
+  businessTypes = getBusinessType();
   const customers = await getCustomerData();
   const templateFilePath = path.join("DA-template", templateFileName);
   const fields = await readTemplateFields(templateFilePath);
@@ -196,9 +206,7 @@ function processCusData(customers, fields) {
   const processedData = customers.map(customer =>
     fields.map(field => {
       if (field == 'country') {
-        const result = countries.filter(country =>
-          country.country_full_name_en.toLowerCase().includes(customer[field].toLowerCase())
-        );
+        const result = countries.filter(country => country.country_full_name_en.toLowerCase().includes(customer[field].toLowerCase()));
         return result[0]?.country_code || ""
       }
 
@@ -217,9 +225,7 @@ function processCusData(customers, fields) {
       }
 
       if (field == 'nationality') {
-        const result = nationalities.filter(nationality =>
-          nationality.nationality_name_en.toLowerCase().includes(customer[field].toLowerCase())
-        );
+        const result = nationalities.filter(nationality => nationality.nationality_name_en.toLowerCase() == customer[field].toLowerCase());
         return result[0]?.nationality_code || ""
       }
 
@@ -232,9 +238,7 @@ function processCusData(customers, fields) {
       }
 
       if (field == 'name_title') {
-        const result = titles.filter(title =>
-          title.title_name_en.toLowerCase().includes(customer[field].toLowerCase())
-        );
+        const result = titles.filter(title => title.title_name_en.toLowerCase() == customer[field].toLowerCase());
         return result[0]?.title_code || "-"
       }
 
@@ -247,9 +251,7 @@ function processCusData(customers, fields) {
       }
 
       if (field == 'bank_short_name') {
-        const result = banks.filter(bank =>
-          bank.bank.toLowerCase().includes(customer[field].toLowerCase())
-        );
+        const result = banks.filter(bank => bank.bank.toLowerCase() == customer[field].toLowerCase());
         return result[0]?.bank_short_name || "-"
       }
 
@@ -342,8 +344,73 @@ function processCusWallet(customers, fields) {
 }
 
 function processIdentification(customers, fields) {
+  console.log(fields);
+  console.log(customers);
   const processedData = customers.map(customer =>
-    fields.map(field => customer[field] || "").join("|")
+    fields.map(field => {
+      if (field == 'contact_address_district' 
+        || field == 'contact_address_province'
+        || field == 'id_address_sub_district'
+        || field == 'contact_address_sub_district'
+        || field == 'id_address_district'
+        || field == 'id_address_province'
+      ) {
+        const result = locations.filter(location => location.sub_district_name_en.toLowerCase() == customer.contact_address_sub_district.toLowerCase());
+        return result[0]?.location_code || "**" + customer.contact_address_sub_district
+      }
+
+      if (field == 'table_id' || field == 'intermediary_id') {
+        return '0105561177671'
+      }
+
+      if (field == 'is_update') {
+        return 'F'
+      }
+
+      if (field == 'business_type_detail') {
+        if(customer.business_type == 'อื่น ๆ (โปรดระบุ)') return customer.business_type_detail || '-'
+        else return customer.business_type || '-'
+      }
+
+      if (field == 'business_type') {
+        const result = businessTypes.filter(business => business.detail == customer.business_type);
+        return result[0]?.type || "-"
+      }
+
+      if (field == 'nationality') {
+        const result = nationalities.filter(nationality => nationality.nationality_name_en.toLowerCase() == customer[field].toLowerCase());
+        return result[0]?.nationality_code || ""
+      }
+
+      if (field == 'report_date') {
+        return '2025-03-10'
+      }
+
+      if (field == 'opening_service_location_country' || field == 'country') {
+        const result = countries.filter(country => country.country_full_name_en.toLowerCase().includes(customer.country.toLowerCase()));
+        return result[0]?.country_code || ""
+      }
+
+      if (field == 'opening_account_date') {
+        return customer[field].substring(0, 10);
+      }
+
+      if (field == 'is_thai_nationality' && customer.nationality == 'THAI') {
+        return "T"
+      } else if (field == 'is_thai_nationality' && customer.nationality != 'THAI') {
+        return "F"
+      }
+
+      if (field == 'education_level') {
+        return '99'
+      }
+
+      if (field == 'opening_service_location_province') {
+        return '0103800191'
+      }
+
+      return customer[field] || "-";
+    }).join("|")
   );
   return processedData
 }
@@ -409,6 +476,39 @@ function getBanks() {
     },
   ]
 }
+
+function getBusinessType() {
+  return [
+    {
+      detail: 'ประกันภัย/ประกันชีวิต',
+      type: '103'
+    },
+    {
+      detail: 'ข้าราชการตำรวจ/ทหาร',
+      type: '101'
+    },
+    {
+      detail: 'อื่น ๆ (โปรดระบุ)',
+      type: '999'
+    },
+    {
+      detail: 'การเงิน/ธนาคาร',
+      type: '104'
+    },
+    {
+      detail: 'อสังหาริมทรัพย์',
+      type: '105'
+    },
+    {
+      detail: 'มหาวิทยาลัย/โรงเรียน/สถานศึกษา',
+      type: '101'
+    },
+    {
+      detail: 'โรงแรม/ภัตตาคาร',
+      type: '***********'
+    },
+  ]
+}
  
 
 // 🚀 Generate multiple templates dynamically
@@ -418,11 +518,11 @@ const yyyymmdd = 20250310;
 var report_date = "2025-03-10"
 
 const templates = [
-  // "ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv",
-  "ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  "ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  // "ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv",
   // "ICOPortal_DA_CusWallet_{dbdNo}_{assetId}_{yyyymmdd}.csv",
-  // "ICOPortal_DA_Identification_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  "ICOPortal_DA_Identification_{dbdNo}_{assetId}_{yyyymmdd}.csv",
   // "ICOPortal_DA_ProfilePortal_{dbdNo}_{assetId}_{yyyymmdd}.csv"
 ];
 
-// templates.forEach(template => generateData(template, dbdNo, assetId, yyyymmdd));
+templates.forEach(template => generateData(template, dbdNo, assetId, yyyymmdd));
