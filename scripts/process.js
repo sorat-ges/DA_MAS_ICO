@@ -92,7 +92,7 @@ async function getCustomerData() {
  * @param {number} assetId - Asset ID.
  * @param {number} yyyymmdd - Date in YYYYMMDD format.
  */
-export async function generateCusData(templateFileName, dbdNo, assetId, yyyymmdd) {
+export async function generateData(templateFileName, dbdNo, assetId, yyyymmdd) {
   const customers = await getCustomerData();
   const templateFilePath = path.join("DA-template", templateFileName);
   const fields = await readTemplateFields(templateFilePath);
@@ -103,14 +103,61 @@ export async function generateCusData(templateFileName, dbdNo, assetId, yyyymmdd
   }
 
   // Process data based on template fields
-  const processedData = customers.map(customer =>
-    fields.map(field => customer[field] || "").join("|")
-  );
+  if (templateFileName === 'ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv') {
+    var processedData = processCusData(customers,fields);
+  }
+  else if (templateFileName === 'ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv') {
+    var processedData = processOutStanding(customers,fields);
+  }
+  else if (templateFileName === 'ICOPortal_DA_CusWallet_{dbdNo}_{assetId}_{yyyymmdd}.csv') {
+    var processedData = processCusWallet(customers,fields);
+  }
+  else if (templateFileName === 'ICOPortal_DA_Identification_{dbdNo}_{assetId}_{yyyymmdd}.csv') {
+    var processedData = processIdentification(customers,fields);
+  }
+  else if (templateFileName === 'ICOPortal_DA_ProfilePortal_{dbdNo}_{assetId}_{yyyymmdd}.csv') {
+    var processedData = processProfilePortal(customers,fields);
+  }
 
   const outputFilePath = getOutputFilePath(templateFileName, dbdNo, assetId, yyyymmdd);
   fs.writeFileSync(outputFilePath, [fields.join("|"), ...processedData].join("\n"), "utf-8");
 
   console.log(`✅ File generated: ${outputFilePath}`);
+}
+
+function processCusData(customers,fields) {
+  const processedData = customers.map(customer =>
+    fields.map(field => customer[field] || "").join("|")
+  );
+  return processedData
+}
+
+function processOutStanding(customers,fields) {
+  const processedData = customers.map(customer =>
+    fields.map(field => customer[field] || "").join("|")
+  );
+  return processedData
+}
+
+function processCusWallet(customers,fields) {
+  const processedData = customers.map(customer =>
+    fields.map(field => customer[field] || "").join("|")
+  );
+  return processedData
+}
+
+function processIdentification(customers,fields) {
+  const processedData = customers.map(customer =>
+    fields.map(field => customer[field] || "").join("|")
+  );
+  return processedData
+}
+
+function processProfilePortal(customers,fields) {
+  const processedData = customers.map(customer =>
+    fields.map(field => customer[field] || "").join("|")
+  );
+  return processedData
 }
 
 // 🚀 Generate multiple templates dynamically
@@ -126,6 +173,4 @@ const templates = [
   "ICOPortal_DA_ProfilePortal_{dbdNo}_{assetId}_{yyyymmdd}.csv"
 ];
 
-
-
-generateCusData(templates[0],dbdNo,assetId,yyyymmdd)
+templates.forEach(template => generateData(template, dbdNo, assetId, yyyymmdd));
