@@ -19,6 +19,7 @@ const da_asset_isin = '-'
 const customer_code_amlo = '-'
 var countries, nationalities, titles, banks, locations, businessTypes
 var report_date = "2025-03-10"
+var register_date = '2025-02-25'
 
 /**
  * Reads an Excel file and extracts data from a specified sheet.
@@ -348,15 +349,53 @@ function processOutStanding(customers, fields, initialCustomers) {
 
 function processCusWallet(customers, fields, initialCustomers) {
   // console.log(fields);
+  var walletData = readMasterExcel('Example/KAVALON-DAMAS.xlsx', 'CusWallet');
+
   const processedData = initialCustomers.map(customer => {
     const existCustomer = customers.find(x => {
       const masterId = String(customer['ID CARD #']).trim();
       const customerId = String(x.tax_id).trim();
       return masterId === customerId;
     });
-    console.log(existCustomer)
     return fields.map(field => {
-      return existCustomer ? existCustomer[field] || "" : ""
+
+      // if (field === 'da_wallet_address') {
+      //   return da_wallet_address;
+      // }
+
+      // if (field === 'asset_id') {
+      //   return da_asset_id;
+      // }
+
+      if (field === 'register_date') {
+        return register_date;
+      }
+
+      // if (field === 'asset_short_name') {
+      //   return da_asset_short_name;
+      // }
+
+      // if (field === 'business_wallet_flag_detail' || field === 'asset_isin') {
+      //   return '-'
+      // }
+
+      // if (field === 'business_wallet_flag') {
+      //   return '01'
+      // }
+
+      // if (field === 'is_deposit_wallet') {
+      //   return 'F'
+      // }
+
+      // if (field === 'wallet_issuer') {
+      //   return 'Xspring_Digital'
+      // }
+
+      if(field === 'customer_code' && existCustomer){
+        return existCustomer[field]
+      }
+
+      return walletData ? walletData[0][field] || "" : ""
     }).join("|")
   });
   return processedData
@@ -544,10 +583,10 @@ const yyyymmdd = 20250310;
 
 
 const templates = [
-  "ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv",
-  "ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  // "ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  // "ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv",
   "ICOPortal_DA_CusWallet_{dbdNo}_{assetId}_{yyyymmdd}.csv",
-  "ICOPortal_DA_Identification_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  // "ICOPortal_DA_Identification_{dbdNo}_{assetId}_{yyyymmdd}.csv",
   // "ICOPortal_DA_ProfilePortal_{dbdNo}_{assetId}_{yyyymmdd}.csv"
 ];
 
