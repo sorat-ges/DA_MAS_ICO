@@ -642,10 +642,17 @@ function processIdentification(customers, fields, initialCustomers) {
       }
 
       if (field == 'occupation') {
-        if (existCustomer && existCustomer[field].length == 2) {
-          return '0' + existCustomer[field]
+        if (existCustomer && existCustomer[field] === '50') {
+          return '999' 
         }
         return existCustomer ? existCustomer[field] || '-' : '-'
+      }
+
+      if(field =='occupation_detail'){
+        if (existCustomer && existCustomer[field] === '50') {
+          return 'อื่นๆ' 
+        }
+         return existCustomer ? existCustomer[field] || '-' : '-'
       }
 
       return existCustomer ? existCustomer[field] || '-' : '-'
