@@ -497,6 +497,62 @@ function processIdentification(customers, fields, initialCustomers) {
       return masterId === customerId;
     });
     return fields.map(field => {
+      if(customer['ID CARD #'].trim() == '0125545001483'){ //เอเชียมาร์ท
+        if(field == 'contact_address_district'
+          || field == 'contact_address_province'
+          || field == 'id_address_sub_district'
+          || field == 'contact_address_sub_district'
+          || field == 'id_address_district'
+          || field == 'id_address_province'
+        ){
+          return '0103800319'
+        }
+ 
+        if(field == 'nationality') return '0106200072'
+        if(field == 'contact_email_address') return 'nukul.asia@gmail.com'
+        if(field == 'customer_code_amlo') return '-'
+        if(field == 'customer_code') return '212500002'
+        if(field == 'customer_id') return '0125545001483'
+        if(field == 'contact_address_road') return '18/13-14 ม.5  ถนนบางกรวย-ไทรน้อย'
+        if(field == 'opening_service_location_country') return '0102100218'
+        if(field == 'birth_yy') return '-'
+        if(field == 'opening_account_date') return '2025-02-23'
+        if(field == 'customer_status') return 'OT'
+        if(field == 'knowledge_test_date') return '-'
+        if(field == 'customer_type') return '21'
+        if(field == 'knowledge_test_status') return '-'
+        if(field == 'country') return '0102100218'
+        if(field == 'workplace') return ''
+      }
+
+      if(customer['ID CARD #'].trim() == '0105564058061'){ //xspring
+        if(field == 'contact_address_district'
+          || field == 'contact_address_province'
+          || field == 'id_address_sub_district'
+          || field == 'contact_address_sub_district'
+          || field == 'id_address_district'
+          || field == 'id_address_province'
+        ){
+          return '0103800191'
+        }
+ 
+        if(field == 'nationality') return '0106200072'
+        if(field == 'contact_email_address') return 'amorna@xspringcapital.com'
+        if(field == 'customer_code_amlo') return '-'
+        if(field == 'customer_code') return '212500001'
+        if(field == 'customer_id') return '0105564058061'
+        if(field == 'contact_address_road') return '59 สิริแคมปัสอาคารดี ชั้น2'
+        if(field == 'opening_service_location_country') return '0102100218'
+        if(field == 'birth_yy') return '-'
+        if(field == 'opening_account_date') return '2025-02-23'
+        if(field == 'customer_status') return 'OT'
+        if(field == 'knowledge_test_date') return '-'
+        if(field == 'customer_type') return '21'
+        if(field == 'knowledge_test_status') return '-'
+        if(field == 'country') return '0102100218'
+        if(field == 'workplace') return ''
+      }
+
       if (existCustomer && (field == 'contact_address_district'
         || field == 'contact_address_province'
         || field == 'id_address_sub_district'
@@ -572,6 +628,10 @@ function processIdentification(customers, fields, initialCustomers) {
 
       if (field == 'opening_service_location_province') {
         return '0103800191'
+      }
+
+      if(field == 'contact_address_country' || field == 'id_address_country'){
+        return '0102100218'
       }
 
       return existCustomer ? existCustomer[field] || '-' : '-'
@@ -684,10 +744,10 @@ const yyyymmdd = 20250310;
 
 
 const templates = [
-  //  "ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv",
-   "ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv",
-   "ICOPortal_DA_CusWallet_{dbdNo}_{assetId}_{yyyymmdd}.csv",
-  // "ICOPortal_DA_Identification_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  // "ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+ //  "ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+   //"ICOPortal_DA_CusWallet_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+   "ICOPortal_DA_Identification_{dbdNo}_{assetId}_{yyyymmdd}.csv",
   // "ICOPortal_DA_ProfilePortal_{dbdNo}_{assetId}_{yyyymmdd}.csv"
 ];
 
