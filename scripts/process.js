@@ -6,7 +6,7 @@ import xlsx from "xlsx"; // Ensure you install this: `npm install xlsx`
 
 const masterFilePath = "Example/KAVALON Token allocation report 24.2.68.xlsx";
 const sheetName = "Allocation report";
-const table_id = "0105561177671;THDA0000000021;";
+const table_id = "0105561177671;THDA0000000021";
 const intermediary_id = "0105561177671"
 const is_update = "F"
 const da_asset_short_name = 'KAVALON'
@@ -531,6 +531,7 @@ function processIdentification(customers, fields, initialCustomers) {
         if (field == 'occupation') return '999'
         if (field == 'occupation_detail') return 'อื่น ๆ'
         if (field == 'contact_phone_number') return '29202223'
+             if(field == 'is_thai_nationality') return 'T'
       }
 
       if (customer['ID CARD #'].trim() == '0105564058061') { //xspring
@@ -563,6 +564,7 @@ function processIdentification(customers, fields, initialCustomers) {
         if (field == 'occupation') return '999'
         if (field == 'occupation_detail') return 'อื่น ๆ'
         if (field == 'contact_phone_number') return '20303730'
+             if(field == 'is_thai_nationality') return 'T'
       }
 
       if (existCustomer && (field == 'contact_address_district'
