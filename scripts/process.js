@@ -649,7 +649,7 @@ function processIdentification(customers, fields, initialCustomers) {
       }
 
       if(field =='occupation_detail'){
-        if (existCustomer && existCustomer[field] === '50') {
+        if (existCustomer && existCustomer['occupation'] === '50') {
           return 'อื่นๆ' 
         }
          return existCustomer ? existCustomer[field] || '-' : '-'
