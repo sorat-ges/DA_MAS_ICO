@@ -530,6 +530,7 @@ function processIdentification(customers, fields, initialCustomers) {
         if (field == 'business_type') return '999'
         if (field == 'occupation') return '999'
         if (field == 'occupation_detail') return 'อื่น ๆ'
+        if (field == 'contact_phone_number') return '29202223'
       }
 
       if (customer['ID CARD #'].trim() == '0105564058061') { //xspring
@@ -561,6 +562,7 @@ function processIdentification(customers, fields, initialCustomers) {
         if (field == 'business_type') return '999'
         if (field == 'occupation') return '999'
         if (field == 'occupation_detail') return 'อื่น ๆ'
+        if (field == 'contact_phone_number') return '20303730'
       }
 
       if (existCustomer && (field == 'contact_address_district'
@@ -670,8 +672,8 @@ function processIdentification(customers, fields, initialCustomers) {
         if (!existCustomer || String(existCustomer[field]).trim() == '') {
           return 'บ้าน'
         }
-        if (existCustomer[field] == '-'){
-            return 'บ้าน'
+        if (existCustomer[field] == '-') {
+          return 'บ้าน'
         }
         return existCustomer[field]
       }
@@ -681,6 +683,10 @@ function processIdentification(customers, fields, initialCustomers) {
         return existCustomer['contact_free_text_address'] + ' ' + existCustomer[field];
       }
 
+
+      if(field == 'contact_phone_number'){
+        return existCustomer ? existCustomer[field].trim() || '-' : '-'
+      }
 
 
       return existCustomer ? existCustomer[field] || '-' : '-'
