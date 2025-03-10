@@ -523,9 +523,9 @@ function processIdentification(customers, fields, initialCustomers) {
         if(field == 'customer_status') return 'OT'
         if(field == 'knowledge_test_date') return '2025-02-21'
         if(field == 'customer_type') return '21'
-        if(field == 'knowledge_test_status') return '-'
+        if(field == 'knowledge_test_status') return '27'
         if(field == 'country') return '0102100218'
-        if(field == 'workplace') return ''
+        if(field == 'workplace') return '-'
       }
  
       if(customer['ID CARD #'].trim() == '0105564058061'){ //xspring
@@ -551,9 +551,9 @@ function processIdentification(customers, fields, initialCustomers) {
         if(field == 'customer_status') return 'OT'
         if(field == 'knowledge_test_date') return '2025-02-21'
         if(field == 'customer_type') return '21'
-        if(field == 'knowledge_test_status') return '-'
+        if(field == 'knowledge_test_status') return '29'
         if(field == 'country') return '0102100218'
-        if(field == 'workplace') return ''
+        if(field == 'workplace') return '-'
       }
  
       if (existCustomer && (field == 'contact_address_district'
@@ -635,6 +635,10 @@ function processIdentification(customers, fields, initialCustomers) {
  
       if(field == 'contact_address_country' || field == 'id_address_country'){
         return '0102100218'
+      }
+
+      if(field =='knowledge_test_status'){
+        return existCustomer['suitability_total_score_digital']
       }
  
       return existCustomer ? existCustomer[field] || '-' : '-'
@@ -747,10 +751,10 @@ const yyyymmdd = 20250310;
  
  
 const templates = [
-   "ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+ //  "ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv",
 //  "ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv",
    //"ICOPortal_DA_CusWallet_{dbdNo}_{assetId}_{yyyymmdd}.csv",
- //  "ICOPortal_DA_Identification_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  "ICOPortal_DA_Identification_{dbdNo}_{assetId}_{yyyymmdd}.csv",
   // "ICOPortal_DA_ProfilePortal_{dbdNo}_{assetId}_{yyyymmdd}.csv"
 ];
  
