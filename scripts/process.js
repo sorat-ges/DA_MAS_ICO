@@ -227,7 +227,7 @@ function processCusData(customers, fields, initialCustomers) {
         if (field == 'last_name') return 'บริษัท เอเชียมาร์ท เอ็กซ์ปอร์ต จำกัด;ASIA MART EXPORT COMPANY LIMITED'
         if (field == 'fist_name') return '-'
         if (field == 'is_thai_nationality') return 'T'
-        if (field == 'birth_yy') return ''
+        if (field == 'birth_yy') return '2002'
         if (field == 'opening_account_date') return '2025-02-23'
         if (field == 'report_date') return '2025-03-10'
         if (field == 'nationality') return '0106200072'
@@ -235,14 +235,14 @@ function processCusData(customers, fields, initialCustomers) {
         if (field == 'is_update') return 'F'
         if (field == 'customer_code') return '212500002'
         if (field == 'contact_email_address') return 'nukul.asia@gmail.com'
-        if (field == 'bank_branch_code') return ''
+        if (field == 'bank_branch_code') return '-'
         if (field == 'name_title') return '0101600001'
         if (field == 'bank_account_number') return ''
         if (field == 'customer_code_amlo') return '-'
         if (field == 'customer_id') return '0125545001483'
         if (field == 'middle_name') return '-'
         if (field == 'tax_id') return '0125545001483'
-        if (field == 'bank_short_name') return ''
+        if (field == 'bank_short_name') return '-'
       }
  
       if(customer['ID CARD #'].trim() == '0105564058061'){
@@ -251,7 +251,7 @@ function processCusData(customers, fields, initialCustomers) {
         if (field == 'last_name') return 'บริษัท เอ็กซ์สปริง แอดวานซ์ โซลูชั่น จำกัด;XSPRING ADVANCE SOLUTIONS COMPANY LIMITED'
         if (field == 'fist_name') return '-'
         if (field == 'is_thai_nationality') return 'T'
-        if (field == 'birth_yy') return ''
+        if (field == 'birth_yy') return '2021'
         if (field == 'opening_account_date') return '2025-02-23'
         if (field == 'report_date') return '2025-03-10'
         if (field == 'nationality') return '0106200073'
@@ -259,14 +259,14 @@ function processCusData(customers, fields, initialCustomers) {
         if (field == 'is_update') return 'F'
         if (field == 'customer_code') return '212500001'
         if (field == 'contact_email_address') return 'amorna@xspringcapital.com'
-        if (field == 'bank_branch_code') return ''
+        if (field == 'bank_branch_code') return '-'
         if (field == 'name_title') return '0101600001'
         if (field == 'bank_account_number') return ''
         if (field == 'customer_code_amlo') return '-'
         if (field == 'customer_id') return '0105564058061'
         if (field == 'middle_name') return '-'
         if (field == 'tax_id') return '0105564058061'
-        if (field == 'bank_short_name') return ''
+        if (field == 'bank_short_name') return '-'
       }
  
       if (field == 'country' && existCustomer) {
