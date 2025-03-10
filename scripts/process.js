@@ -6,7 +6,7 @@ import xlsx from "xlsx"; // Ensure you install this: `npm install xlsx`
 
 const masterFilePath = "Example/KAVALON Token allocation report 24.2.68.xlsx";
 const sheetName = "Allocation report";
-const table_id = "0105561177671";
+const table_id = "0105561177671;THDA0000000021;";
 const intermediary_id = "0105561177671"
 const is_update = "F"
 const da_asset_short_name = 'KAVALON'
@@ -231,7 +231,7 @@ function processCusData(customers, fields, initialCustomers) {
         if (field == 'opening_account_date') return '2025-02-23'
         if (field == 'report_date') return '2025-03-10'
         if (field == 'nationality') return '0106200072'
-        if (field == 'table_id') return '0105561177671'
+        if (field == 'table_id') return table_id
         if (field == 'is_update') return 'F'
         if (field == 'customer_code') return '212500002'
         if (field == 'contact_email_address') return 'nukul.asia@gmail.com'
@@ -586,7 +586,11 @@ function processIdentification(customers, fields, initialCustomers) {
         return result[0]?.location_code || "**" + existCustomer.contact_address_sub_district
       }
 
-      if (field == 'table_id' || field == 'intermediary_id') {
+      if (field == 'table_id' ) {
+        return table_id
+      }
+
+      if(field == 'intermediary_id'){
         return '0105561177671'
       }
 
