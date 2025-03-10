@@ -242,6 +242,7 @@ function processCusData(customers, fields, initialCustomers) {
         if (field == 'customer_id') return '0125545001483'
         if (field == 'middle_name') return '-'
         if (field == 'tax_id') return '0125545001483'
+        if (field == 'bank_short_name') return ''
       }
  
       if(customer['ID CARD #'].trim() == '0105564058061'){
@@ -265,6 +266,7 @@ function processCusData(customers, fields, initialCustomers) {
         if (field == 'customer_id') return '0105564058061'
         if (field == 'middle_name') return '-'
         if (field == 'tax_id') return '0105564058061'
+        if (field == 'bank_short_name') return ''
       }
 
       if (field == 'country' && existCustomer) {
@@ -744,10 +746,10 @@ const yyyymmdd = 20250310;
 
 
 const templates = [
-  // "ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  "ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv",
  //  "ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv",
    //"ICOPortal_DA_CusWallet_{dbdNo}_{assetId}_{yyyymmdd}.csv",
-   "ICOPortal_DA_Identification_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  //  "ICOPortal_DA_Identification_{dbdNo}_{assetId}_{yyyymmdd}.csv",
   // "ICOPortal_DA_ProfilePortal_{dbdNo}_{assetId}_{yyyymmdd}.csv"
 ];
 
