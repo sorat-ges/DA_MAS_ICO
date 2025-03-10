@@ -641,7 +641,7 @@ function processIdentification(customers, fields, initialCustomers) {
       }
 
       if (field == 'knowledge_test_status') {
-        return existCustomer['suitability_total_score_digital']
+        return existCustomer['suitability_total_score_digital'].substring(0,2)
       }
 
       if (field == 'occupation') {
@@ -664,6 +664,13 @@ function processIdentification(customers, fields, initialCustomers) {
         }
         return existCustomer[field]
       }
+
+      if (existCustomer && field == 'contact_address_road'){
+        if(existCustomer[field] == '') return existCustomer['contact_free_text_address']
+        return existCustomer['contact_free_text_address'] + ' ' + existCustomer[field];
+      }
+
+
 
       return existCustomer ? existCustomer[field] || '-' : '-'
     }).join("|")
