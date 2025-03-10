@@ -3,7 +3,7 @@ import path from "path";
 import { title } from "process";
 import readline from "readline";
 import xlsx from "xlsx"; // Ensure you install this: `npm install xlsx`
- 
+
 const masterFilePath = "Example/KAVALON Token allocation report 24.2.68.xlsx";
 const sheetName = "Allocation report";
 const table_id = "0105561177671";
@@ -20,7 +20,7 @@ const customer_code_amlo = '-'
 var countries, nationalities, titles, banks, locations, businessTypes
 var report_date = "2025-03-10"
 var register_date = '2025-02-25'
- 
+
 /**
 * Reads an Excel file and extracts data from a specified sheet.
 * @param {string} filePath - Path to the Excel file.
@@ -32,17 +32,17 @@ function readMasterExcel(filePath, sheetName) {
     console.error(`❌ Master Excel file not found: ${filePath}`);
     return {};
   }
- 
+
   const workbook = xlsx.readFile(filePath);
   const sheet = workbook.Sheets[sheetName];
- 
+
   if (!sheet) {
     console.error(`❌ Sheet "${sheetName}" not found in ${filePath}`);
     return {};
   }
- 
+
   const jsonData = xlsx.utils.sheet_to_json(sheet);
- 
+
   return jsonData.map(item => {
     return Object.fromEntries(
       Object.entries(item).map(([key, value]) => {
@@ -51,7 +51,7 @@ function readMasterExcel(filePath, sheetName) {
     );
   });
 }
- 
+
 /**
 * Reads a CSV file and returns an array of objects.
 * @param {string} filePath - Path to the CSV file.
@@ -63,13 +63,13 @@ async function readCSV(filePath, delimiter = "|") {
     console.error(`❌ File not found: ${filePath}`);
     return [];
   }
- 
+
   const stream = fs.createReadStream(filePath);
   const rl = readline.createInterface({ input: stream, crlfDelay: Infinity });
- 
+
   const rows = [];
   let headers = [];
- 
+
   for await (const line of rl) {
     const fields = line.split(delimiter).map(field => field.trim().replace(/^"|"$/g, ''));
     if (headers.length === 0) {
@@ -80,7 +80,7 @@ async function readCSV(filePath, delimiter = "|") {
   }
   return rows;
 }
- 
+
 /**
 * Reads the template file and returns an array of field names.
 * @param {string} templateFilePath - Path to the template file.
@@ -91,17 +91,17 @@ async function readTemplateFields(templateFilePath) {
     console.error(`❌ Template file not found: ${templateFilePath}`);
     return [];
   }
- 
+
   const stream = fs.createReadStream(templateFilePath);
   const rl = readline.createInterface({ input: stream, crlfDelay: Infinity });
- 
+
   for await (const line of rl) {
     rl.close();
     return line.split("|").map(field => field.trim()); // Use '|' as delimiter for template
   }
   return [];
 }
- 
+
 /**
 * Generates a valid output file path based on a template filename.
 * @param {string} templateFileName - The template filename with placeholders.
@@ -112,20 +112,20 @@ async function readTemplateFields(templateFilePath) {
 */
 function getOutputFilePath(templateFileName, dbdNo, assetId, yyyymmdd) {
   const outputDir = "output";
- 
+
   if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir, { recursive: true });
   }
- 
+
   // Replace placeholders in the template filename
   const outputFileName = templateFileName
     .replace("{dbdNo}", dbdNo)
     .replace("{assetId}", assetId)
     .replace("{yyyymmdd}", yyyymmdd);
- 
+
   return path.join(outputDir, outputFileName);
 }
- 
+
 /**
 * Reads customer data from a predefined CSV file.
 * @returns {Promise<object[]>} Parsed customer data.
@@ -134,31 +134,31 @@ async function getCustomerData() {
   const customerFile = "DA-Master/ico_customer_export_pipe.csv";
   return await readCSV(customerFile, "|"); // Read as pipe-delimited
 }
- 
+
 async function getCountryMapping() {
   const file = "DA-Master/DA_T_Mas_Country.csv";
   return await readCSV(file, "|"); // Read as pipe-delimited
 }
- 
+
 async function getNationalityMapping() {
   const file = "DA-Master/DA_T_Mas_Nationality.csv";
   return await readCSV(file, "|"); // Read as pipe-delimited
 }
- 
+
 async function getTitleMapping() {
   const file = "DA-Master/DA_T_Mas_Title.csv";
   return await readCSV(file, "|"); // Read as pipe-delimited
 }
- 
+
 async function getLocationMapping() {
   const file = "DA-Master/DA_T_Mas_Location.csv";
   return await readCSV(file, "|"); // Read as pipe-delimited
 }
- 
+
 async function getIntialCustomer() {
- 
+
 }
- 
+
 /**
 * Generates a data file based on a given template.
 * @param {string} templateFileName - The template filename with placeholders.
@@ -166,8 +166,8 @@ async function getIntialCustomer() {
 * @param {number} assetId - Asset ID.
 * @param {number} yyyymmdd - Date in YYYYMMDD format.
 */
- 
- 
+
+
 export async function generateData(templateFileName, dbdNo, assetId, yyyymmdd) {
   countries = await getCountryMapping();
   nationalities = await getNationalityMapping();
@@ -179,13 +179,13 @@ export async function generateData(templateFileName, dbdNo, assetId, yyyymmdd) {
   const templateFilePath = path.join("DA-template", templateFileName);
   const fields = await readTemplateFields(templateFilePath);
   const initialCustomers = readMasterExcel(masterFilePath, "Allocation report");
- 
+
   // console.log(initialCustomers)
   if (fields.length === 0) {
     console.error(`❌ No fields found in template: ${templateFilePath}`);
     return;
   }
- 
+
   // Process data based on template fields
   if (templateFileName === 'ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv') {
     var processedData = processCusData(customers, fields, initialCustomers);
@@ -202,15 +202,15 @@ export async function generateData(templateFileName, dbdNo, assetId, yyyymmdd) {
   else if (templateFileName === 'ICOPortal_DA_ProfilePortal_{dbdNo}_{assetId}_{yyyymmdd}.csv') {
     var processedData = processProfilePortal(fields);
   }
- 
+
   const outputFilePath = getOutputFilePath(templateFileName, dbdNo, assetId, yyyymmdd);
   fs.writeFileSync(outputFilePath, [fields.join("|"), ...processedData].join("\n"), "utf-8");
- 
+
   console.log(`✅ File generated: ${outputFilePath}`);
 }
- 
+
 function processCusData(customers, fields, initialCustomers) {
- 
+
   const processedData = initialCustomers.map(customer => {
     const existCustomer = customers.find(x => {
       const masterId = String(customer['ID CARD #']).trim();
@@ -218,66 +218,66 @@ function processCusData(customers, fields, initialCustomers) {
       return masterId === customerId;
     });
     // console.log(existCustomer)
- 
+
     return fields.map(field => {
       if (field == 'country' && existCustomer) {
         const result = countries.filter(country => country.country_full_name_en.toLowerCase().includes(existCustomer[field].toLowerCase()));
         return result[0]?.country_code || "-"
       }
- 
+
       if (field == 'is_thai_nationality' && existCustomer && existCustomer.nationality == 'THAI') {
         return "T"
       } else if (field == 'is_thai_nationality' && existCustomer && existCustomer.nationality != 'THAI') {
         return "F"
       }
- 
+
       if (field == 'opening_account_date' && existCustomer) {
         return existCustomer[field].substring(0, 10);
       }
- 
+
       if (field == 'report_date') {
         return report_date
       }
- 
+
       if (field == 'nationality' && existCustomer) {
         const result = nationalities.filter(nationality => nationality.nationality_name_en.toLowerCase() == existCustomer[field].toLowerCase());
         return result[0]?.nationality_code || ""
       }
- 
+
       if (field == 'table_id' || field == 'intermediary_id') {
         return '0105561177671'
       }
- 
+
       if (field == 'is_update') {
         return 'F'
       }
- 
+
       if (field == 'name_title' && existCustomer) {
         const result = titles.filter(title => title.title_name_en.toLowerCase() == existCustomer[field].toLowerCase());
         return result[0]?.title_code || '-'
       }
- 
+
       if (field == 'customer_code_amlo') {
         return '-'
       }
- 
+
       if (field == 'customer_id') {
         return customer['ID CARD #']
       }
- 
+
       if (field == 'bank_short_name' && existCustomer) {
         const result = banks.filter(bank => bank.bank.toLowerCase() == existCustomer[field].toLowerCase());
         return result[0]?.bank_short_name || '-'
       }
- 
+
       return existCustomer ? existCustomer[field] || '-' : '-';
     }).join("|")
   });
- 
+
   // console.log(processedData);
   return processedData
 }
- 
+
 function processOutStanding(customers, fields, initialCustomers) {
   const processedData = initialCustomers.map(customer => {
     const existCustomer = customers.find(x => {
@@ -285,72 +285,83 @@ function processOutStanding(customers, fields, initialCustomers) {
       const customerId = String(x.tax_id).trim();
       return masterId === customerId;
     });
- 
+
     return fields.map(field => {
       if (field === 'da_asset_short_name') {
         return da_asset_short_name;
       }
- 
+
       if (field === 'da_asset_id') {
         return da_asset_id;
       }
- 
+
       if (field === 'is_digital_asset_outstanding') {
         return is_digital_asset_outstanding;
       }
- 
+
       if (field === 'fiat_asset_id') {
         return fiat_asset_id;
       }
- 
+
       if (field === 'da_wallet_address') {
         return da_wallet_address;
       }
- 
+
       if (field === 'fiat_quantity') {
         return fiat_quantity;
       }
- 
+
       if (field === 'da_asset_isin') {
         return da_asset_isin;
       }
- 
+
       if (field === 'customer_code_amlo') {
         return customer_code_amlo;
       }
- 
+
       if (field === "da_quantity") {
-          console.log(customer)
+        console.log(customer)
         return customer['จำนวนเงิน'] || "0";
       }
- 
+
       if (field === "intermediary_id") {
         return intermediary_id;
       }
- 
+
       if (field === "table_id") {
         return table_id;
       }
- 
+
       if (field === "is_update") {
         return is_update;
       }
- 
+
       if (field === "report_date") {
         return report_date;
       }
- 
+
+      if (field === 'customer_code') {
+        if (customer['ID CARD #'] === '0125545001483') {
+          return '212500002'
+        } 
+        else if (customer['ID CARD #'] === '0105564058061') {
+          return '212500001'
+        }
+
+        return existCustomer[field]
+      }
+
       return existCustomer ? existCustomer[field] || "" : "";
     }).join("|");
   });
- 
+
   return processedData;
 }
- 
+
 function processCusWallet(customers, fields, initialCustomers) {
   // console.log(fields);
   var walletData = readMasterExcel('Example/KAVALON-DAMAS.xlsx', 'CusWallet');
- 
+
   const processedData = initialCustomers.map(customer => {
     const existCustomer = customers.find(x => {
       const masterId = String(customer['ID CARD #']).trim();
@@ -358,49 +369,61 @@ function processCusWallet(customers, fields, initialCustomers) {
       return masterId === customerId;
     });
     return fields.map(field => {
- 
+
       // if (field === 'da_wallet_address') {
       //   return da_wallet_address;
       // }
- 
+
       // if (field === 'asset_id') {
       //   return da_asset_id;
       // }
- 
+
       if (field === 'register_date') {
         return register_date;
       }
- 
+
       // if (field === 'asset_short_name') {
       //   return da_asset_short_name;
       // }
- 
+
       // if (field === 'business_wallet_flag_detail' || field === 'asset_isin') {
       //   return '-'
       // }
- 
+
       // if (field === 'business_wallet_flag') {
       //   return '01'
       // }
- 
+
       // if (field === 'is_deposit_wallet') {
       //   return 'F'
       // }
- 
+
       // if (field === 'wallet_issuer') {
       //   return 'Xspring_Digital'
       // }
- 
-      if(field === 'customer_code' && existCustomer){
+
+      if (field === 'customer_code') {
+
+        if (customer['ID CARD #'] === '0125545001483') {
+          return '212500002'
+        } 
+        else if (customer['ID CARD #'] === '0105564058061') {
+          return '212500001'
+        }
+
         return existCustomer[field]
       }
- 
+
+      if(field === 'report_date'){
+        return report_date
+      }
+
       return walletData ? walletData[0][field] || "" : ""
     }).join("|")
   });
   return processedData
 }
- 
+
 function processIdentification(customers, fields, initialCustomers) {
   const processedData = initialCustomers.map(customer => {
     const existCustomer = customers.find(x => {
@@ -418,81 +441,81 @@ function processIdentification(customers, fields, initialCustomers) {
       )
       ) {
         const result = locations.filter(location => location.sub_district_name_en.toLowerCase() == existCustomer.contact_address_sub_district.toLowerCase());
- 
-        if(existCustomer.contact_address_sub_district.trim() == 'Samsen Nai') return '0103800073'
-        else if(existCustomer.contact_address_sub_district.trim() == 'Phra Khanong Nua') return '0103800191'
-        else if(existCustomer.contact_address_sub_district.trim() == 'Suan Phrik Thai') return '0103800361'
-        else if(existCustomer.contact_address_sub_district.trim() == 'Sam Wa Tawantok') return '0103800215'
-        else if(existCustomer.contact_address_sub_district.trim() == 'Bang Kae Nua') return '0103800194'
-        else if(existCustomer.contact_address_sub_district.trim() == 'Sao Thong Hin') return '0103800314'
-        else if(existCustomer.contact_address_sub_district.trim() == 'Khlong Chao Khun Sing') return '0103800212'
-        else if(existCustomer.contact_address_sub_district.trim() == 'Ta Khli') return '0103805761'
-        else if(existCustomer.contact_address_sub_district.trim() == 'Phimonrat') return '0103800324'
-        else if(existCustomer.contact_address_sub_district.trim() == 'Khlong Kluea') return '0103800346'
-        else if(existCustomer.contact_address_sub_district.trim() == 'Phrabat') return '0103805104'
-        else if(existCustomer.contact_address_sub_district.trim() == 'Khlong Tan Nua') return '0103800190'
-        else if(existCustomer.contact_address_sub_district.trim() == 'Khlong Toei Nua') return '0103800189'
- 
+
+        if (existCustomer.contact_address_sub_district.trim() == 'Samsen Nai') return '0103800073'
+        else if (existCustomer.contact_address_sub_district.trim() == 'Phra Khanong Nua') return '0103800191'
+        else if (existCustomer.contact_address_sub_district.trim() == 'Suan Phrik Thai') return '0103800361'
+        else if (existCustomer.contact_address_sub_district.trim() == 'Sam Wa Tawantok') return '0103800215'
+        else if (existCustomer.contact_address_sub_district.trim() == 'Bang Kae Nua') return '0103800194'
+        else if (existCustomer.contact_address_sub_district.trim() == 'Sao Thong Hin') return '0103800314'
+        else if (existCustomer.contact_address_sub_district.trim() == 'Khlong Chao Khun Sing') return '0103800212'
+        else if (existCustomer.contact_address_sub_district.trim() == 'Ta Khli') return '0103805761'
+        else if (existCustomer.contact_address_sub_district.trim() == 'Phimonrat') return '0103800324'
+        else if (existCustomer.contact_address_sub_district.trim() == 'Khlong Kluea') return '0103800346'
+        else if (existCustomer.contact_address_sub_district.trim() == 'Phrabat') return '0103805104'
+        else if (existCustomer.contact_address_sub_district.trim() == 'Khlong Tan Nua') return '0103800190'
+        else if (existCustomer.contact_address_sub_district.trim() == 'Khlong Toei Nua') return '0103800189'
+
         return result[0]?.location_code || "**" + existCustomer.contact_address_sub_district
       }
- 
+
       if (field == 'table_id' || field == 'intermediary_id') {
         return '0105561177671'
       }
- 
+
       if (field == 'is_update') {
         return 'F'
       }
- 
+
       if (field == 'business_type_detail' && existCustomer) {
         if (existCustomer.business_type == 'อื่น ๆ (โปรดระบุ)') return existCustomer.business_type_detail || '-'
         else return existCustomer.business_type || '-'
       }
- 
+
       if (field == 'business_type' && existCustomer) {
         const result = businessTypes.filter(business => business.detail == existCustomer.business_type);
         return result[0]?.type || '-'
       }
- 
+
       if (field == 'nationality' && existCustomer) {
         const result = nationalities.filter(nationality => nationality.nationality_name_en.toLowerCase() == existCustomer[field].toLowerCase());
         return result[0]?.nationality_code || '-'
       }
- 
+
       if (field == 'report_date') {
         return '2025-03-10'
       }
- 
+
       if ((field == 'opening_service_location_country' || field == 'country') && existCustomer) {
         const result = countries.filter(country => country.country_full_name_en.toLowerCase().includes(existCustomer.country.toLowerCase()));
         return result[0]?.country_code || '-'
       }
- 
+
       if (field == 'opening_account_date' && existCustomer) {
         return existCustomer[field].substring(0, 10);
       }
- 
+
       if (field == 'is_thai_nationality' && existCustomer && existCustomer.nationality == 'THAI') {
         return "T"
       } else if (field == 'is_thai_nationality' && existCustomer && existCustomer.nationality != 'THAI') {
         return "F"
       }
- 
+
       if (field == 'education_level') {
         return '99'
       }
- 
+
       if (field == 'opening_service_location_province') {
         return '0103800191'
       }
- 
+
       return existCustomer ? existCustomer[field] || '-' : '-'
     }).join("|")
   });
- 
+
   return processedData
 }
- 
+
 function processProfilePortal(fields) {
   const profilePortal = readMasterExcel("Example/KAVALON-DAMAS.xlsx", "ProfilePortal")
   const processedData = profilePortal.map(data =>
@@ -500,8 +523,8 @@ function processProfilePortal(fields) {
   );
   return processedData
 }
- 
- 
+
+
 function getBanks() {
   return [
     {
@@ -554,7 +577,7 @@ function getBanks() {
     },
   ]
 }
- 
+
 function getBusinessType() {
   return [
     {
@@ -587,20 +610,20 @@ function getBusinessType() {
     },
   ]
 }
- 
- 
+
+
 // 🚀 Generate multiple templates dynamically
 const dbdNo = '0105561177671';
 const assetId = 'THDA0000000021';
 const yyyymmdd = 20250310;
- 
- 
+
+
 const templates = [
   //  "ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv",
-  //  "ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv",
-  // "ICOPortal_DA_CusWallet_{dbdNo}_{assetId}_{yyyymmdd}.csv",
-   "ICOPortal_DA_Identification_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+   "ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+   "ICOPortal_DA_CusWallet_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  // "ICOPortal_DA_Identification_{dbdNo}_{assetId}_{yyyymmdd}.csv",
   // "ICOPortal_DA_ProfilePortal_{dbdNo}_{assetId}_{yyyymmdd}.csv"
 ];
- 
+
 templates.forEach(template => generateData(template, dbdNo, assetId, yyyymmdd));
