@@ -525,7 +525,7 @@ function processIdentification(customers, fields, initialCustomers) {
         if (field == 'customer_type') return '21'
         if (field == 'knowledge_test_status') return '27'
         if (field == 'country') return '0102100218'
-        if (field == 'workplace') return '-'
+        if (field == 'workplace') return 'บ้าน'
       }
 
       if (customer['ID CARD #'].trim() == '0105564058061') { //xspring
@@ -553,7 +553,7 @@ function processIdentification(customers, fields, initialCustomers) {
         if (field == 'customer_type') return '21'
         if (field == 'knowledge_test_status') return '29'
         if (field == 'country') return '0102100218'
-        if (field == 'workplace') return '-'
+        if (field == 'workplace') return 'บ้าน'
       }
 
       if (existCustomer && (field == 'contact_address_district'
@@ -592,15 +592,15 @@ function processIdentification(customers, fields, initialCustomers) {
       }
 
       if (field == 'business_type_detail' && existCustomer) {
-        if (existCustomer.business_type == 'อื่น ๆ (โปรดระบุ)') return existCustomer.business_type_detail || '-'
-        else return existCustomer.business_type || '-'
+        if (existCustomer.business_type == 'อื่น ๆ (โปรดระบุ)') return existCustomer.business_type_detail || 'อื่น ๆ (โปรดระบุ)'
+        else return existCustomer.business_type || 'อื่น ๆ (โปรดระบุ)'
       }
-
+ 
       if (field == 'business_type' && existCustomer) {
         const result = businessTypes.filter(business => business.detail == existCustomer.business_type);
-        return result[0]?.type || '-'
+        return result[0]?.type || '999'
       }
-
+      
       if (field == 'nationality' && existCustomer) {
         const result = nationalities.filter(nationality => nationality.nationality_name_en.toLowerCase() == existCustomer[field].toLowerCase());
         return result[0]?.nationality_code || '-'
@@ -653,6 +653,13 @@ function processIdentification(customers, fields, initialCustomers) {
           return 'อื่นๆ' 
         }
          return existCustomer ? existCustomer[field] || '-' : '-'
+      }
+
+      if(field == 'workplace'){
+         if (!existCustomer || String(existCustomer[field]).trim() == '' ){
+         return  'บ้าน'
+         }
+         return existCustomer[field]
       }
 
       return existCustomer ? existCustomer[field] || '-' : '-'
