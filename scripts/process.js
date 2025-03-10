@@ -302,6 +302,7 @@ function processCusData(customers, fields, initialCustomers) {
       }
  
       if (field == 'name_title' && existCustomer) {
+        if(existCustomer[field].toLowerCase() == 'other') return '0101699998'
         const result = titles.filter(title => title.title_name_en.toLowerCase() == existCustomer[field].toLowerCase());
         return result[0]?.title_code || '-'
       }
@@ -746,10 +747,10 @@ const yyyymmdd = 20250310;
  
  
 const templates = [
-  // "ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+   "ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv",
 //  "ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv",
    //"ICOPortal_DA_CusWallet_{dbdNo}_{assetId}_{yyyymmdd}.csv",
-   "ICOPortal_DA_Identification_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+ //  "ICOPortal_DA_Identification_{dbdNo}_{assetId}_{yyyymmdd}.csv",
   // "ICOPortal_DA_ProfilePortal_{dbdNo}_{assetId}_{yyyymmdd}.csv"
 ];
  
