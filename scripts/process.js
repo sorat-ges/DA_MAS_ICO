@@ -523,11 +523,13 @@ function processIdentification(customers, fields, initialCustomers) {
         if (field == 'customer_status') return 'OT'
         if (field == 'knowledge_test_date') return '2025-02-21'
         if (field == 'customer_type') return '21'
-        if (field == 'knowledge_test_status') return '27'
+        if (field == 'knowledge_test_status') return 'KT01'
         if (field == 'country') return '0102100218'
         if (field == 'workplace') return 'บ้าน'
         if (field == 'business_type_detail') return 'Trading Export'
         if (field == 'business_type') return '999'
+        if (field == 'occupation') return '999'
+        if (field == 'occupation_detail') return 'อื่น ๆ'
       }
 
       if (customer['ID CARD #'].trim() == '0105564058061') { //xspring
@@ -553,10 +555,12 @@ function processIdentification(customers, fields, initialCustomers) {
         if (field == 'customer_status') return 'OT'
         if (field == 'knowledge_test_date') return '2025-02-21'
         if (field == 'customer_type') return '21'
-        if (field == 'knowledge_test_status') return '29'
+        if (field == 'knowledge_test_status') return 'KT01'
         if (field == 'country') return '0102100218'
         if (field == 'business_type_detail') return 'Investment'
         if (field == 'business_type') return '999'
+        if (field == 'occupation') return '999'
+        if (field == 'occupation_detail') return 'อื่น ๆ'
       }
 
       if (existCustomer && (field == 'contact_address_district'
@@ -586,11 +590,11 @@ function processIdentification(customers, fields, initialCustomers) {
         return result[0]?.location_code || "**" + existCustomer.contact_address_sub_district
       }
 
-      if (field == 'table_id' ) {
+      if (field == 'table_id') {
         return table_id
       }
 
-      if(field == 'intermediary_id'){
+      if (field == 'intermediary_id') {
         return '0105561177671'
       }
 
@@ -645,7 +649,7 @@ function processIdentification(customers, fields, initialCustomers) {
       }
 
       if (field == 'knowledge_test_status') {
-        return existCustomer['suitability_total_score_digital'].substring(0,2)
+        return 'KT01'
       }
 
       if (field == 'occupation') {
@@ -659,18 +663,21 @@ function processIdentification(customers, fields, initialCustomers) {
         if (existCustomer && existCustomer['occupation'] === '50') {
           return 'อื่นๆ'
         }
-        return existCustomer ? existCustomer[field] || '-' : '-'
+        return existCustomer ? existCustomer[field] || 'อื่น ๆ' : 'อื่น ๆ'
       }
 
       if (field == 'workplace') {
         if (!existCustomer || String(existCustomer[field]).trim() == '') {
           return 'บ้าน'
         }
+        if (existCustomer[field] == '-'){
+            return 'บ้าน'
+        }
         return existCustomer[field]
       }
 
-      if (existCustomer && field == 'contact_address_road'){
-        if(existCustomer[field] == '') return existCustomer['contact_free_text_address']
+      if (existCustomer && field == 'contact_address_road') {
+        if (existCustomer[field] == '') return existCustomer['contact_free_text_address']
         return existCustomer['contact_free_text_address'] + ' ' + existCustomer[field];
       }
 
