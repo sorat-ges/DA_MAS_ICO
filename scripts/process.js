@@ -340,6 +340,15 @@ function processOutStanding(customers, fields, initialCustomers) {
         return report_date;
       }
 
+      if (field === 'customer_type') {
+        if (customer['ID CARD #'] === '0125545001483' || customer['ID CARD #'] === '0105564058061') {
+          return '21'
+        } 
+        else {
+          existCustomer[field]
+        }
+      }
+
       if (field === 'customer_code') {
         if (customer['ID CARD #'] === '0125545001483') {
           return '212500002'
@@ -350,6 +359,15 @@ function processOutStanding(customers, fields, initialCustomers) {
 
         return existCustomer[field]
       }
+
+      if (field === 'customer_status') {
+        if (customer['ID CARD #'] === '0125545001483' || customer['ID CARD #'] === '0105564058061') {
+          return 'OT'
+        } 
+    
+        return existCustomer[field]
+      }
+
 
       return existCustomer ? existCustomer[field] || "" : "";
     }).join("|");
