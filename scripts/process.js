@@ -220,6 +220,53 @@ function processCusData(customers, fields, initialCustomers) {
     // console.log(existCustomer)
 
     return fields.map(field => {
+
+      if(customer['ID CARD #'].trim() == '0125545001483'){
+        if (field == 'customer_type') return '21'
+        if (field == 'country') return '0102100218'
+        if (field == 'last_name') return 'บริษัท เอเชียมาร์ท เอ็กซ์ปอร์ต จำกัด;ASIA MART EXPORT COMPANY LIMITED'
+        if (field == 'fist_name') return '-'
+        if (field == 'is_thai_nationality') return 'T'
+        if (field == 'birth_yy') return ''
+        if (field == 'opening_account_date') return '2025-02-23'
+        if (field == 'report_date') return '2025-03-10'
+        if (field == 'nationality') return '0106200072'
+        if (field == 'table_id') return '0105561177671'
+        if (field == 'is_update') return 'F'
+        if (field == 'customer_code') return '212500002'
+        if (field == 'contact_email_address') return 'nukul.asia@gmail.com'
+        if (field == 'bank_branch_code') return ''
+        if (field == 'name_title') return '0101600001'
+        if (field == 'bank_account_number') return ''
+        if (field == 'customer_code_amlo') return '-'
+        if (field == 'customer_id') return '0125545001483'
+        if (field == 'middle_name') return '-'
+        if (field == 'tax_id') return '0125545001483'
+      }
+ 
+      if(customer['ID CARD #'].trim() == '0105564058061'){
+        if (field == 'customer_type') return '21'
+        if (field == 'country') return '0102100218'
+        if (field == 'last_name') return 'บริษัท เอ็กซ์สปริง แอดวานซ์ โซลูชั่น จำกัด;XSPRING ADVANCE SOLUTIONS COMPANY LIMITED'
+        if (field == 'fist_name') return '-'
+        if (field == 'is_thai_nationality') return 'T'
+        if (field == 'birth_yy') return ''
+        if (field == 'opening_account_date') return '2025-02-23'
+        if (field == 'report_date') return '2025-03-10'
+        if (field == 'nationality') return '0106200073'
+        if (field == 'table_id') return '0105561177671'
+        if (field == 'is_update') return 'F'
+        if (field == 'customer_code') return '212500001'
+        if (field == 'contact_email_address') return 'amorna@xspringcapital.com'
+        if (field == 'bank_branch_code') return ''
+        if (field == 'name_title') return '0101600001'
+        if (field == 'bank_account_number') return ''
+        if (field == 'customer_code_amlo') return '-'
+        if (field == 'customer_id') return '0105564058061'
+        if (field == 'middle_name') return '-'
+        if (field == 'tax_id') return '0105564058061'
+      }
+
       if (field == 'country' && existCustomer) {
         const result = countries.filter(country => country.country_full_name_en.toLowerCase().includes(existCustomer[field].toLowerCase()));
         return result[0]?.country_code || "-"
