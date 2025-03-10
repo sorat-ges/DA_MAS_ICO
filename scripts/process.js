@@ -402,8 +402,6 @@ function processCusWallet(customers, fields, initialCustomers) {
 }
  
 function processIdentification(customers, fields, initialCustomers) {
-  console.log(fields);
-  console.log(customers);
   const processedData = initialCustomers.map(customer => {
     const existCustomer = customers.find(x => {
       const masterId = String(customer['ID CARD #']).trim();
@@ -420,6 +418,21 @@ function processIdentification(customers, fields, initialCustomers) {
       )
       ) {
         const result = locations.filter(location => location.sub_district_name_en.toLowerCase() == existCustomer.contact_address_sub_district.toLowerCase());
+ 
+        if(existCustomer.contact_address_sub_district.trim() == 'Samsen Nai') return '0103800073'
+        else if(existCustomer.contact_address_sub_district.trim() == 'Phra Khanong Nua') return '0103800191'
+        else if(existCustomer.contact_address_sub_district.trim() == 'Suan Phrik Thai') return '0103800361'
+        else if(existCustomer.contact_address_sub_district.trim() == 'Sam Wa Tawantok') return '0103800215'
+        else if(existCustomer.contact_address_sub_district.trim() == 'Bang Kae Nua') return '0103800194'
+        else if(existCustomer.contact_address_sub_district.trim() == 'Sao Thong Hin') return '0103800314'
+        else if(existCustomer.contact_address_sub_district.trim() == 'Khlong Chao Khun Sing') return '0103800212'
+        else if(existCustomer.contact_address_sub_district.trim() == 'Ta Khli') return '0103805761'
+        else if(existCustomer.contact_address_sub_district.trim() == 'Phimonrat') return '0103800324'
+        else if(existCustomer.contact_address_sub_district.trim() == 'Khlong Kluea') return '0103800346'
+        else if(existCustomer.contact_address_sub_district.trim() == 'Phrabat') return '0103805104'
+        else if(existCustomer.contact_address_sub_district.trim() == 'Khlong Tan Nua') return '0103800190'
+        else if(existCustomer.contact_address_sub_district.trim() == 'Khlong Toei Nua') return '0103800189'
+ 
         return result[0]?.location_code || "**" + existCustomer.contact_address_sub_district
       }
  
@@ -583,12 +596,11 @@ const yyyymmdd = 20250310;
  
  
 const templates = [
-   "ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv",
-   "ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv",
-  "ICOPortal_DA_CusWallet_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  //  "ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  //  "ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  // "ICOPortal_DA_CusWallet_{dbdNo}_{assetId}_{yyyymmdd}.csv",
    "ICOPortal_DA_Identification_{dbdNo}_{assetId}_{yyyymmdd}.csv",
   // "ICOPortal_DA_ProfilePortal_{dbdNo}_{assetId}_{yyyymmdd}.csv"
 ];
  
 templates.forEach(template => generateData(template, dbdNo, assetId, yyyymmdd));
- 
