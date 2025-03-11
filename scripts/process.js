@@ -5,8 +5,7 @@ import readline from "readline";
 import xlsx from "xlsx"; // Ensure you install this: `npm install xlsx`
 
 const masterFilePath = "Example/KAVALON Token allocation report 24.2.68.xlsx";
-const sheetName = "Allocation report";
-const table_id = "0105561177671;THDA0000000021";
+const table_id = "0105561177671;THDA0000000021;18";
 const intermediary_id = "0105561177671"
 const is_update = "F"
 const da_asset_short_name = 'KAVALON'
@@ -225,7 +224,7 @@ function processCusData(customers, fields, initialCustomers) {
         if (field == 'customer_type') return '21'
         if (field == 'country') return '0102100218'
         if (field == 'last_name') return 'บริษัท เอเชียมาร์ท เอ็กซ์ปอร์ต จำกัด;ASIA MART EXPORT COMPANY LIMITED'
-        if (field == 'fist_name') return '-'
+        if (field == 'fist_name') return 'บริษัท เอเชียมาร์ท เอ็กซ์ปอร์ต จำกัด;ASIA MART EXPORT COMPANY LIMITED'
         if (field == 'is_thai_nationality') return 'T'
         if (field == 'birth_yy') return '2002'
         if (field == 'opening_account_date') return '2025-02-23'
@@ -240,7 +239,7 @@ function processCusData(customers, fields, initialCustomers) {
         if (field == 'bank_account_number') return ''
         if (field == 'customer_code_amlo') return '-'
         if (field == 'customer_id') return '0125545001483'
-        if (field == 'middle_name') return '-'
+        if (field == 'middle_name') return 'บริษัท เอเชียมาร์ท เอ็กซ์ปอร์ต จำกัด;ASIA MART EXPORT COMPANY LIMITED'
         if (field == 'tax_id') return '0125545001483'
         if (field == 'bank_short_name') return '-'
       }
@@ -249,7 +248,7 @@ function processCusData(customers, fields, initialCustomers) {
         if (field == 'customer_type') return '21'
         if (field == 'country') return '0102100218'
         if (field == 'last_name') return 'บริษัท เอ็กซ์สปริง แอดวานซ์ โซลูชั่น จำกัด;XSPRING ADVANCE SOLUTIONS COMPANY LIMITED'
-        if (field == 'fist_name') return '-'
+        if (field == 'fist_name') return 'บริษัท เอ็กซ์สปริง แอดวานซ์ โซลูชั่น จำกัด;XSPRING ADVANCE SOLUTIONS COMPANY LIMITED'
         if (field == 'is_thai_nationality') return 'T'
         if (field == 'birth_yy') return '2021'
         if (field == 'opening_account_date') return '2025-02-23'
@@ -264,7 +263,7 @@ function processCusData(customers, fields, initialCustomers) {
         if (field == 'bank_account_number') return ''
         if (field == 'customer_code_amlo') return '-'
         if (field == 'customer_id') return '0105564058061'
-        if (field == 'middle_name') return '-'
+        if (field == 'middle_name') return 'บริษัท เอ็กซ์สปริง แอดวานซ์ โซลูชั่น จำกัด;XSPRING ADVANCE SOLUTIONS COMPANY LIMITED'
         if (field == 'tax_id') return '0105564058061'
         if (field == 'bank_short_name') return '-'
       }
@@ -318,6 +317,31 @@ function processCusData(customers, fields, initialCustomers) {
       if (field == 'bank_short_name' && existCustomer) {
         const result = banks.filter(bank => bank.bank.toLowerCase() == existCustomer[field].toLowerCase());
         return result[0]?.bank_short_name || '-'
+      }
+
+      if (field == 'first_name') {
+        const firstNameTh = existCustomer ? existCustomer['first_name_th'] || '-' : '-';
+        const firstNameEn = existCustomer ? existCustomer['first_name'] || '-' : '-';
+
+
+        return firstNameTh + ';' + firstNameEn;
+      }
+
+      if (field == 'last_name') {
+        const lastNameTh = existCustomer ? existCustomer['last_name_th'] || '-' : '-';
+        const lastNameEn = existCustomer ? existCustomer['last_name'] || '-' : '-';
+
+
+        return lastNameTh + ';' + lastNameEn;
+      }
+
+      if (field == 'middle_name') {
+  
+        return '-' + ';' + '-';
+      }
+
+      if (field == 'bank_branch_code' && existCustomer) {
+        return existCustomer[field] == '00000' || existCustomer[field] == '' ? '-' : existCustomer[field];
       }
 
       return existCustomer ? existCustomer[field] || '-' : '-';
@@ -438,37 +462,9 @@ function processCusWallet(customers, fields, initialCustomers) {
     });
     return fields.map(field => {
 
-      // if (field === 'da_wallet_address') {
-      //   return da_wallet_address;
-      // }
-
-      // if (field === 'asset_id') {
-      //   return da_asset_id;
-      // }
-
       if (field === 'register_date') {
         return register_date;
       }
-
-      // if (field === 'asset_short_name') {
-      //   return da_asset_short_name;
-      // }
-
-      // if (field === 'business_wallet_flag_detail' || field === 'asset_isin') {
-      //   return '-'
-      // }
-
-      // if (field === 'business_wallet_flag') {
-      //   return '01'
-      // }
-
-      // if (field === 'is_deposit_wallet') {
-      //   return 'F'
-      // }
-
-      // if (field === 'wallet_issuer') {
-      //   return 'Xspring_Digital'
-      // }
 
       if (field === 'customer_code') {
 
@@ -531,7 +527,7 @@ function processIdentification(customers, fields, initialCustomers) {
         if (field == 'occupation') return '999'
         if (field == 'occupation_detail') return 'อื่น ๆ'
         if (field == 'contact_phone_number') return '29202223'
-             if(field == 'is_thai_nationality') return 'T'
+        if (field == 'is_thai_nationality') return 'T'
       }
 
       if (customer['ID CARD #'].trim() == '0105564058061') { //xspring
@@ -564,7 +560,7 @@ function processIdentification(customers, fields, initialCustomers) {
         if (field == 'occupation') return '999'
         if (field == 'occupation_detail') return 'อื่น ๆ'
         if (field == 'contact_phone_number') return '20303730'
-             if(field == 'is_thai_nationality') return 'T'
+        if (field == 'is_thai_nationality') return 'T'
       }
 
       if (existCustomer && (field == 'contact_address_district'
@@ -686,7 +682,7 @@ function processIdentification(customers, fields, initialCustomers) {
       }
 
 
-      if(field == 'contact_phone_number'){
+      if (field == 'contact_phone_number') {
         return existCustomer ? existCustomer[field].trim() || '-' : '-'
       }
 
@@ -796,16 +792,14 @@ function getBusinessType() {
 
 // 🚀 Generate multiple templates dynamically
 const dbdNo = '0105561177671';
-const assetId = 'THDA0000000021';
 const yyyymmdd = 20250310;
 
-
 const templates = [
-  //  "ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+   "ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv",
   //  "ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv",
   //"ICOPortal_DA_CusWallet_{dbdNo}_{assetId}_{yyyymmdd}.csv",
-  "ICOPortal_DA_Identification_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  // "ICOPortal_DA_Identification_{dbdNo}_{assetId}_{yyyymmdd}.csv",
   // "ICOPortal_DA_ProfilePortal_{dbdNo}_{assetId}_{yyyymmdd}.csv"
 ];
 
-templates.forEach(template => generateData(template, dbdNo, assetId, yyyymmdd));
+templates.forEach(template => generateData(template, dbdNo, da_asset_id, yyyymmdd));
