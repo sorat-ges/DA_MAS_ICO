@@ -399,7 +399,7 @@ function processOutStanding(customers, fields, initialCustomers) {
 
       if (field === "da_quantity") {
         console.log(customer)
-        return customer['จำนวนเงิน'] || "0";
+        return customer['จำนวนเงิน'] + '.00000000' || "0";
       }
 
       if (field === "intermediary_id") {
@@ -485,6 +485,11 @@ function processCusWallet(customers, fields, initialCustomers) {
       if (field === 'report_date') {
         return report_date
       }
+
+      if (field === 'table_id') {
+        return table_id
+      }
+
 
       return walletData ? walletData[0][field] || "" : ""
     }).join("|")
@@ -799,8 +804,8 @@ const dbdNo = '0105561177671';
 const yyyymmdd = 20250310;
 
 const templates = [
-   "ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv",
-  //  "ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+   //"ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+    "ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv",
   //"ICOPortal_DA_CusWallet_{dbdNo}_{assetId}_{yyyymmdd}.csv",
   // "ICOPortal_DA_Identification_{dbdNo}_{assetId}_{yyyymmdd}.csv",
   // "ICOPortal_DA_ProfilePortal_{dbdNo}_{assetId}_{yyyymmdd}.csv"
