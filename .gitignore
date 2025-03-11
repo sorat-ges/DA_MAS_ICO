@@ -2,7 +2,6 @@
 node_modules/
 
 # Ignore output folder (generated files)
-output/
 
 # Ignore system files (optional but recommended)
 .DS_Store
