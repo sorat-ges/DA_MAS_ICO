@@ -236,10 +236,10 @@ function processCusData(customers, fields, initialCustomers) {
         if (field == 'contact_email_address') return 'nukul.asia@gmail.com'
         if (field == 'bank_branch_code') return '-'
         if (field == 'name_title') return '0101600001'
-        if (field == 'bank_account_number') return ''
+        if (field == 'bank_account_number') return '-'
         if (field == 'customer_code_amlo') return '-'
         if (field == 'customer_id') return '0125545001483'
-        if (field == 'middle_name') return 'บริษัท เอเชียมาร์ท เอ็กซ์ปอร์ต จำกัด;ASIA MART EXPORT COMPANY LIMITED'
+        if (field == 'middle_name') return '-;-'
         if (field == 'tax_id') return '0125545001483'
         if (field == 'bank_short_name') return '-'
       }
@@ -253,17 +253,17 @@ function processCusData(customers, fields, initialCustomers) {
         if (field == 'birth_yy') return '2021'
         if (field == 'opening_account_date') return '2025-02-23'
         if (field == 'report_date') return '2025-03-10'
-        if (field == 'nationality') return '0106200073'
-        if (field == 'table_id') return '0105561177671'
+        if (field == 'nationality') return '0106200072'
+        if (field == 'table_id') return table_id
         if (field == 'is_update') return 'F'
         if (field == 'customer_code') return '212500001'
         if (field == 'contact_email_address') return 'amorna@xspringcapital.com'
         if (field == 'bank_branch_code') return '-'
         if (field == 'name_title') return '0101600001'
-        if (field == 'bank_account_number') return ''
+        if (field == 'bank_account_number') return '-'
         if (field == 'customer_code_amlo') return '-'
         if (field == 'customer_id') return '0105564058061'
-        if (field == 'middle_name') return 'บริษัท เอ็กซ์สปริง แอดวานซ์ โซลูชั่น จำกัด;XSPRING ADVANCE SOLUTIONS COMPANY LIMITED'
+           if (field == 'middle_name') return '-;-'
         if (field == 'tax_id') return '0105564058061'
         if (field == 'bank_short_name') return '-'
       }
@@ -292,8 +292,12 @@ function processCusData(customers, fields, initialCustomers) {
         return result[0]?.nationality_code || ""
       }
 
-      if (field == 'table_id' || field == 'intermediary_id') {
-        return '0105561177671'
+      if (field == 'table_id') {
+        return table_id
+      }
+
+      if(field == 'intermediary_id'){
+         return '0105561177671'
       }
 
       if (field == 'is_update') {
@@ -595,7 +599,7 @@ function processIdentification(customers, fields, initialCustomers) {
       }
 
       if (field == 'intermediary_id') {
-        return '0105561177671'
+        return intermediary_id
       }
 
       if (field == 'is_update') {
