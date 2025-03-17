@@ -57,7 +57,7 @@ Several global variables are defined at the top of the script for customization:
 ## Execution
 To generate the required output files, run:
 ```sh
-node script.js
+npm run dev
 ```
 
 The script processes multiple templates:
