@@ -856,12 +856,29 @@ function processDTWreport(fields) {
   //   )
   // );
 
-  // const dtw = readMasterExcel("Example/DTW.xlsx", "DTW");
-  // processedData = processedData.concat(
-  //   dtw.map(data =>
-  //     fields.map(field => data[field] || "").join("|")
-  //   )
-  // );
+  const dtw = readMasterExcel("Example/DTW.xlsx", "DTW");
+  processedData = processedData.concat(
+    dtw.map(data =>
+
+      fields.map(field =>
+        { 
+          if(field == 'report_date'){
+            return report_date
+          }
+
+          if(field == 'transaction_date'){
+            return '2025-02-25'
+          }
+
+          if(field == 'destination_bank_short_name'){
+            return '-'
+          }
+          
+          return data[field] || ""
+        }
+        ).join("|")
+    )
+  );
 
   return processedData;
 }
@@ -1011,8 +1028,8 @@ const yyyymmdd = 20250310;
 const templates = [
   //"ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv",
   "ICOPortal_DA_DTWreport_{dbdNo}_{assetId}_{yyyymmdd}.csv",
-  // "ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv",
-  //"ICOPortal_DA_CusWallet_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+   "ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+"ICOPortal_DA_CusWallet_{dbdNo}_{assetId}_{yyyymmdd}.csv",
   // "ICOPortal_DA_Identification_{dbdNo}_{assetId}_{yyyymmdd}.csv",
   // "ICOPortal_DA_ProfilePortal_{dbdNo}_{assetId}_{yyyymmdd}.csv"
 ];
