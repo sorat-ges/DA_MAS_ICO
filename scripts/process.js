@@ -195,7 +195,7 @@ export async function generateData(templateFileName, dbdNo, assetId, yyyymmdd) {
   }
   else if (templateFileName === 'ICOPortal_DA_ProfilePortal_{dbdNo}_{assetId}_{yyyymmdd}.csv') {
     var processedData = processProfilePortal(fields);
-  }else if (templateFileName === 'ICOPortal_DA_DTWreport_{dbdNo}_{assetId}_{yyyymmdd}.csv'){
+  } else if (templateFileName === 'ICOPortal_DA_DTWreport_{dbdNo}_{assetId}_{yyyymmdd}.csv') {
     var processedData = processDTWreport(fields)
   }
 
@@ -379,13 +379,13 @@ function processOutStanding(customers, fields, initialCustomers) {
       }
 
       if (field === 'da_wallet_address' && existCustomer) {
-        return da_wallet_address+'-'+existCustomer.customer_code;
-      }else if (field === 'da_wallet_address' && !existCustomer) {
+        return da_wallet_address + '-' + existCustomer.customer_code;
+      } else if (field === 'da_wallet_address' && !existCustomer) {
         if (customer['ID CARD #'] === '0125545001483') {
-          return da_wallet_address+'-212500002'
+          return da_wallet_address + '-212500002'
         }
         else if (customer['ID CARD #'] === '0105564058061') {
-          return da_wallet_address+'-212500001'
+          return da_wallet_address + '-212500001'
         }
       }
 
@@ -494,14 +494,14 @@ function processCusWallet(customers, fields, initialCustomers) {
         return table_id
       }
 
-      if(field === 'wallet_address'){
+      if (field === 'wallet_address') {
         if (customer['ID CARD #'] === '0125545001483') {
           return walletData[0][field] + '-212500002'
         }
         else if (customer['ID CARD #'] === '0105564058061') {
           return walletData[0][field] + '-212500001'
         }
- 
+
         return walletData ? walletData[0][field] + '-' + existCustomer['customer_code'] || "" : ""
       }
 
@@ -726,12 +726,47 @@ function processProfilePortal(fields) {
 }
 
 function processDTWreport(fields) {
-  const dtw = readMasterExcel("Example/DTW.xlsx", "DTW")
-  console.log(dtw);
-  const processedData = dtw.map(data =>
-    fields.map(field => data[field] || "").join("|")
+  let processedData = [];
+
+  const master = readMasterExcel("Example/TRANFER_KAVALON.xlsx", "ข้อมูลการโอนเงิน");
+  // master.forEach(data => {
+  //   const firstNameParts = (data['first_name'] || "").split(";");
+  //   const lastNameParts = (data['last_name'] || "").split(";");
+  //   const fullName = data['ชื่อ-นามสกุล'] || "";
+
+  //   // ตรวจสอบว่า fullName มีค่าเท่ากับ firstName + lastName หรือไม่
+  //   const isValidFullName = firstNameParts.some(fn => 
+  //     lastNameParts.some(ln => `${fn} ${ln}` === fullName)
+  //   );
+
+  //   if (!isValidFullName) {
+  //     console.error(`ชื่อ-นามสกุลไม่ตรงกับ first_name + last_name: ${fullName}`);
+  //   }
+  // });
+
+  const transfers = readMasterExcel("Example/DTW.xlsx", "Transfer");
+  processedData = processedData.concat(
+    transfers.map(data =>
+      fields.map(field => {
+
+        if(field === 'transaction_no'){
+          return 'FTHB-'+ data['customer_code']
+        }
+
+
+        return data[field] || ""
+      }).join("|")
+    )
   );
-  return processedData
+
+  // const dtw = readMasterExcel("Example/DTW.xlsx", "DTW");
+  // processedData = processedData.concat(
+  //   dtw.map(data =>
+  //     fields.map(field => data[field] || "").join("|")
+  //   )
+  // );
+
+  return processedData;
 }
 
 
