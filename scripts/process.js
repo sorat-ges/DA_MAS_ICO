@@ -745,12 +745,91 @@ function processDTWreport(fields) {
   // });
 
   const transfers = readMasterExcel("Example/DTW.xlsx", "Transfer");
+
+  processedData = processedData.concat(
+    master.map(data => {
+
+      const existTransfer = transfers.find(x => x.customer_code === data.customer_code);
+      return fields.map(field => {
+        if (field === 'transaction_no') {
+          return 'FTHB-' + data['customer_code']
+        }
+
+        if (field === 'transaction_date' || field === 'transaction_time') {
+          const existCustomer = master.find(x => x.customer_code == data['customer_code']);
+
+          if (existCustomer && existCustomer.Date) {
+            let rawDateStr = existCustomer.Date.trim(); // Trim any extra spaces
+
+            // Try parsing different date formats
+            let dateObj = parseCustomDate(rawDateStr);
+
+            // Handle invalid date
+            if (!dateObj) {
+              console.warn(`Invalid date for customer_code: ${data['customer_code']}, Date: ${existCustomer.Date}`);
+              return "";
+            }
+
+            if (field === 'transaction_date') {
+              return dateObj.toISOString().split("T")[0]; // YYYY-MM-DD
+            }
+
+            if (field === 'transaction_time') {
+              const hours = String(dateObj.getHours()).padStart(2, '0');
+              const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+              const seconds = String(dateObj.getSeconds()).padStart(2, '0');
+              const milliseconds = String(dateObj.getMilliseconds()).padEnd(6, '0'); // Ensure 6 digits
+
+              return `${hours}:${minutes}:${seconds}.${milliseconds}`;
+            }
+          }
+          return ""; // Return empty string if date is missing
+        }
+
+
+        return existTransfer[field] || ""
+      }).join("|");
+
+    })
+  )
+
   processedData = processedData.concat(
     transfers.map(data =>
       fields.map(field => {
 
-        if(field === 'transaction_no'){
-          return 'FTHB-'+ data['customer_code']
+        if (field === 'transaction_no') {
+          return 'FTHB-' + data['customer_code']
+        }
+
+        if (field === 'transaction_date' || field === 'transaction_time') {
+          const existCustomer = master.find(x => x.customer_code == data['customer_code']);
+
+          if (existCustomer && existCustomer.Date) {
+            let rawDateStr = existCustomer.Date.trim(); // Trim any extra spaces
+
+            // Try parsing different date formats
+            let dateObj = parseCustomDate(rawDateStr);
+
+            // Handle invalid date
+            if (!dateObj) {
+              console.warn(`Invalid date for customer_code: ${data['customer_code']}, Date: ${existCustomer.Date}`);
+              return "";
+            }
+
+            if (field === 'transaction_date') {
+              return dateObj.toISOString().split("T")[0]; // YYYY-MM-DD
+            }
+
+            if (field === 'transaction_time') {
+              const hours = String(dateObj.getHours()).padStart(2, '0');
+              const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+              const seconds = String(dateObj.getSeconds()).padStart(2, '0');
+              const milliseconds = String(dateObj.getMilliseconds()).padEnd(6, '0'); // Ensure 6 digits
+
+              return `${hours}:${minutes}:${seconds}.${milliseconds}`;
+            }
+          }
+          return ""; // Return empty string if date is missing
         }
 
 
@@ -769,6 +848,25 @@ function processDTWreport(fields) {
   return processedData;
 }
 
+function parseCustomDate(dateStr) {
+  // Handle two formats: "DD/MM/YYYY HH:mm:ss" and "DD-MM-YYYY HH:mm:ss"
+  const regex1 = /^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2}):(\d{2})$/;
+  const regex2 = /^(\d{1,2})-(\d{1,2})-(\d{4})\s+(\d{1,2}):(\d{2}):(\d{2})$/;
+
+  let match = dateStr.match(regex1) || dateStr.match(regex2);
+
+  if (match) {
+    let [, day, month, year, hours, minutes, seconds] = match;
+
+    // Ensure two-digit formatting
+    day = String(day).padStart(2, '0');
+    month = String(month).padStart(2, '0');
+
+    return new Date(`${year}-${month}-${day}T${hours}:${minutes}:${seconds}`);
+  }
+
+  return null; // Return null if parsing fails
+}
 
 function getBanks() {
   return [
