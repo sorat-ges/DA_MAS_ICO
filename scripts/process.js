@@ -755,6 +755,15 @@ function processDTWreport(fields) {
           return 'FTHB-' + data['customer_code']
         }
 
+        if (field === 'destination_bank_account_no') {
+          return data['เลขที่บัญชีการโอน']
+        }
+
+        if (field == 'destination_bank_short_name') {
+          const result = banks.filter(bank => bank.bank.toLowerCase() == data['ธนาคาร'].toLowerCase());
+          return result[0]?.bank_short_name || '-'
+        }
+
         if (field === 'transaction_date' || field === 'transaction_time') {
           const existCustomer = master.find(x => x.customer_code == data['customer_code']);
 
@@ -793,50 +802,50 @@ function processDTWreport(fields) {
     })
   )
 
-  processedData = processedData.concat(
-    transfers.map(data =>
-      fields.map(field => {
+  // processedData = processedData.concat(
+  //   transfers.map(data =>
+  //     fields.map(field => {
 
-        if (field === 'transaction_no') {
-          return 'FTHB-' + data['customer_code']
-        }
+  //       if (field === 'transaction_no') {
+  //         return 'FTHB-' + data['customer_code']
+  //       }
 
-        if (field === 'transaction_date' || field === 'transaction_time') {
-          const existCustomer = master.find(x => x.customer_code == data['customer_code']);
+  //       if (field === 'transaction_date' || field === 'transaction_time') {
+  //         const existCustomer = master.find(x => x.customer_code == data['customer_code']);
 
-          if (existCustomer && existCustomer.Date) {
-            let rawDateStr = existCustomer.Date.trim(); // Trim any extra spaces
+  //         if (existCustomer && existCustomer.Date) {
+  //           let rawDateStr = existCustomer.Date.trim(); // Trim any extra spaces
 
-            // Try parsing different date formats
-            let dateObj = parseCustomDate(rawDateStr);
+  //           // Try parsing different date formats
+  //           let dateObj = parseCustomDate(rawDateStr);
 
-            // Handle invalid date
-            if (!dateObj) {
-              console.warn(`Invalid date for customer_code: ${data['customer_code']}, Date: ${existCustomer.Date}`);
-              return "";
-            }
+  //           // Handle invalid date
+  //           if (!dateObj) {
+  //             console.warn(`Invalid date for customer_code: ${data['customer_code']}, Date: ${existCustomer.Date}`);
+  //             return "";
+  //           }
 
-            if (field === 'transaction_date') {
-              return dateObj.toISOString().split("T")[0]; // YYYY-MM-DD
-            }
+  //           if (field === 'transaction_date') {
+  //             return dateObj.toISOString().split("T")[0]; // YYYY-MM-DD
+  //           }
 
-            if (field === 'transaction_time') {
-              const hours = String(dateObj.getHours()).padStart(2, '0');
-              const minutes = String(dateObj.getMinutes()).padStart(2, '0');
-              const seconds = String(dateObj.getSeconds()).padStart(2, '0');
-              const milliseconds = String(dateObj.getMilliseconds()).padEnd(6, '0'); // Ensure 6 digits
+  //           if (field === 'transaction_time') {
+  //             const hours = String(dateObj.getHours()).padStart(2, '0');
+  //             const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+  //             const seconds = String(dateObj.getSeconds()).padStart(2, '0');
+  //             const milliseconds = String(dateObj.getMilliseconds()).padEnd(6, '0'); // Ensure 6 digits
 
-              return `${hours}:${minutes}:${seconds}.${milliseconds}`;
-            }
-          }
-          return ""; // Return empty string if date is missing
-        }
+  //             return `${hours}:${minutes}:${seconds}.${milliseconds}`;
+  //           }
+  //         }
+  //         return ""; // Return empty string if date is missing
+  //       }
 
 
-        return data[field] || ""
-      }).join("|")
-    )
-  );
+  //       return data[field] || ""
+  //     }).join("|")
+  //   )
+  // );
 
   // const dtw = readMasterExcel("Example/DTW.xlsx", "DTW");
   // processedData = processedData.concat(
@@ -918,6 +927,22 @@ function getBanks() {
       bank: 'LH BANK',
       bank_short_name: 'LAHRTHB2'
     },
+    {
+      bank: 'UOB',
+      bank_short_name: 'UOVBTHBK'
+    }, {
+      bank: 'KKP',
+      bank_short_name: 'KKPBTHBK'
+    },
+    {
+      bank: 'CIMB',
+      bank_short_name: 'UBOBTHBK'
+    },
+    { bank: 'ออมสิน', bank_short_name: 'GSBATHBK' },
+    { bank: 'ไทยเครดิต', bank_short_name: 'THCETHB1' },
+    { bank: 'GHB', bank_short_name: 'GOHUTHB1' },
+    { bank: 'TTB', bank_short_name: 'TMBKTHBK' },
+    {bank:'TISCO',bank_short_name:'TFPCTHB1'}
   ]
 }
 
