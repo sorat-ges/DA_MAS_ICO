@@ -1,6 +1,5 @@
 import fs from "fs";
 import path from "path";
-import { title } from "process";
 import readline from "readline";
 import xlsx from "xlsx"; // Ensure you install this: `npm install xlsx`
 
@@ -154,10 +153,6 @@ async function getLocationMapping() {
   return await readCSV(file, "|"); // Read as pipe-delimited
 }
 
-async function getIntialCustomer() {
-
-}
-
 /**
 * Generates a data file based on a given template.
 * @param {string} templateFileName - The template filename with placeholders.
@@ -200,6 +195,8 @@ export async function generateData(templateFileName, dbdNo, assetId, yyyymmdd) {
   }
   else if (templateFileName === 'ICOPortal_DA_ProfilePortal_{dbdNo}_{assetId}_{yyyymmdd}.csv') {
     var processedData = processProfilePortal(fields);
+  }else if (templateFileName === 'ICOPortal_DA_DTWreport_{dbdNo}_{assetId}_{yyyymmdd}.csv'){
+    var processedData = processDTWreport(fields)
   }
 
   const outputFilePath = getOutputFilePath(templateFileName, dbdNo, assetId, yyyymmdd);
@@ -263,7 +260,7 @@ function processCusData(customers, fields, initialCustomers) {
         if (field == 'bank_account_number') return '-'
         if (field == 'customer_code_amlo') return '-'
         if (field == 'customer_id') return '0105564058061'
-           if (field == 'middle_name') return '-;-'
+        if (field == 'middle_name') return '-;-'
         if (field == 'tax_id') return '0105564058061'
         if (field == 'bank_short_name') return '-'
       }
@@ -296,8 +293,8 @@ function processCusData(customers, fields, initialCustomers) {
         return table_id
       }
 
-      if(field == 'intermediary_id'){
-         return '0105561177671'
+      if (field == 'intermediary_id') {
+        return '0105561177671'
       }
 
       if (field == 'is_update') {
@@ -340,7 +337,7 @@ function processCusData(customers, fields, initialCustomers) {
       }
 
       if (field == 'middle_name') {
-  
+
         return '-' + ';' + '-';
       }
 
@@ -381,8 +378,15 @@ function processOutStanding(customers, fields, initialCustomers) {
         return fiat_asset_id;
       }
 
-      if (field === 'da_wallet_address') {
-        return da_wallet_address;
+      if (field === 'da_wallet_address' && existCustomer) {
+        return da_wallet_address+'-'+existCustomer.customer_code;
+      }else if (field === 'da_wallet_address' && !existCustomer) {
+        if (customer['ID CARD #'] === '0125545001483') {
+          return da_wallet_address+'-212500002'
+        }
+        else if (customer['ID CARD #'] === '0105564058061') {
+          return da_wallet_address+'-212500001'
+        }
       }
 
       if (field === 'fiat_quantity') {
@@ -711,6 +715,10 @@ function processProfilePortal(fields) {
   return processedData
 }
 
+function processDTWreport(fields) {
+
+}
+
 
 function getBanks() {
   return [
@@ -804,8 +812,9 @@ const dbdNo = '0105561177671';
 const yyyymmdd = 20250310;
 
 const templates = [
-   //"ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv",
-    "ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  //"ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  "ICOPortal_DA_DTWreport_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  // "ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv",
   //"ICOPortal_DA_CusWallet_{dbdNo}_{assetId}_{yyyymmdd}.csv",
   // "ICOPortal_DA_Identification_{dbdNo}_{assetId}_{yyyymmdd}.csv",
   // "ICOPortal_DA_ProfilePortal_{dbdNo}_{assetId}_{yyyymmdd}.csv"
