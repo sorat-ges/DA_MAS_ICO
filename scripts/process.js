@@ -764,6 +764,15 @@ function processDTWreport(fields) {
           return result[0]?.bank_short_name || '-'
         }
 
+        if (field == 'destination_bank_code') {
+          const result = banks.filter(bank => bank.bank.toLowerCase() == data['ธนาคาร'].toLowerCase());
+          return result[0]?.bank_code|| '-'
+        }
+
+        if(field =='report_date'){
+          return report_date
+        }
+
         if (field === 'transaction_date' || field === 'transaction_time') {
           const existCustomer = master.find(x => x.customer_code == data['customer_code']);
 
@@ -880,69 +889,84 @@ function parseCustomDate(dateStr) {
 function getBanks() {
   return [
     {
+      bank_code:'014',
       bank: 'SCB',
       bank_short_name: 'SICOTHBK'
     },
     {
+      bank_code:'011',
       bank: 'TMB',
       bank_short_name: 'TMBKTHBK'
     },
     {
+      bank_code:'004',
       bank: 'KBANK',
       bank_short_name: 'KASITHBK'
     },
     {
+      bank_code:'002',
       bank: 'BBL',
       bank_short_name: 'BKKBTHBK'
     },
     {
+      bank_code:'006',
       bank: 'KTB',
       bank_short_name: 'KRTHTHBK'
     },
     {
+      bank_code:'006',
       bank: 'TCRB',
-      bank_short_name: 'KRTHTHBK'
+      bank_short_name: 'THCETHB1'
     },
     {
+      bank_code:'069',
       bank: 'KK',
       bank_short_name: 'KKPBTHBK'
     },
     {
+      bank_code:'030',
       bank: 'GSB',
       bank_short_name: 'GSBATHBK'
     },
     {
+      bank_code:'025',
       bank: 'BAY',
       bank_short_name: 'AYUDTHBK'
     },
     {
+      bank_code:'022',
       bank: 'CIMBT',
       bank_short_name: 'UBOBTHBK'
     },
     {
+      bank_code:'024',
       bank: 'UOBT',
       bank_short_name: 'UOVBTHBK'
     },
     {
+      bank_code:'073',
       bank: 'LH BANK',
       bank_short_name: 'LAHRTHB2'
     },
     {
+      bank_code:'024',
       bank: 'UOB',
       bank_short_name: 'UOVBTHBK'
     }, {
+      bank_code:'069',
       bank: 'KKP',
       bank_short_name: 'KKPBTHBK'
     },
     {
+      bank_code:'022',
       bank: 'CIMB',
       bank_short_name: 'UBOBTHBK'
     },
-    { bank: 'ออมสิน', bank_short_name: 'GSBATHBK' },
-    { bank: 'ไทยเครดิต', bank_short_name: 'THCETHB1' },
-    { bank: 'GHB', bank_short_name: 'GOHUTHB1' },
-    { bank: 'TTB', bank_short_name: 'TMBKTHBK' },
-    {bank:'TISCO',bank_short_name:'TFPCTHB1'}
+    {   bank_code:'030',bank: 'ออมสิน', bank_short_name: 'GSBATHBK' },
+    { bank_code:'071',bank: 'ไทยเครดิต', bank_short_name: 'THCETHB1' },
+    { bank_code:'033',bank: 'GHB', bank_short_name: 'GOHUTHB1' },
+    { bank_code:'011',bank: 'TTB', bank_short_name: 'TMBKTHBK' },
+    { bank_code:'067',bank: 'TISCO', bank_short_name: 'TFPCTHB1' }
   ]
 }
 
