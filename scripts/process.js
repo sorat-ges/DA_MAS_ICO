@@ -494,6 +494,16 @@ function processCusWallet(customers, fields, initialCustomers) {
         return table_id
       }
 
+      if(field === 'wallet_address'){
+        if (customer['ID CARD #'] === '0125545001483') {
+          return walletData[0][field] + '-212500002'
+        }
+        else if (customer['ID CARD #'] === '0105564058061') {
+          return walletData[0][field] + '-212500001'
+        }
+ 
+        return walletData ? walletData[0][field] + '-' + existCustomer['customer_code'] || "" : ""
+      }
 
       return walletData ? walletData[0][field] || "" : ""
     }).join("|")
@@ -716,7 +726,12 @@ function processProfilePortal(fields) {
 }
 
 function processDTWreport(fields) {
-
+  const dtw = readMasterExcel("Example/DTW.xlsx", "DTW")
+  console.log(dtw);
+  const processedData = dtw.map(data =>
+    fields.map(field => data[field] || "").join("|")
+  );
+  return processedData
 }
 
 
