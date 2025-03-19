@@ -729,20 +729,13 @@ function processDTWreport(fields) {
   let processedData = [];
 
   const master = readMasterExcel("Example/TRANFER_KAVALON.xlsx", "ข้อมูลการโอนเงิน");
-  // master.forEach(data => {
-  //   const firstNameParts = (data['first_name'] || "").split(";");
-  //   const lastNameParts = (data['last_name'] || "").split(";");
-  //   const fullName = data['ชื่อ-นามสกุล'] || "";
 
-  //   // ตรวจสอบว่า fullName มีค่าเท่ากับ firstName + lastName หรือไม่
-  //   const isValidFullName = firstNameParts.some(fn => 
-  //     lastNameParts.some(ln => `${fn} ${ln}` === fullName)
-  //   );
 
-  //   if (!isValidFullName) {
-  //     console.error(`ชื่อ-นามสกุลไม่ตรงกับ first_name + last_name: ${fullName}`);
-  //   }
-  // });
+  const customerCodeCounts = {};
+  master.forEach(data => {
+    customerCodeCounts[data.customer_code] = (customerCodeCounts[data.customer_code] || 0) + 1;
+  });
+  const customerCodeTracker = {};
 
   const transfers = readMasterExcel("Example/DTW.xlsx", "Transfer");
 
@@ -752,11 +745,42 @@ function processDTWreport(fields) {
       const existTransfer = transfers.find(x => x.customer_code === data.customer_code);
       return fields.map(field => {
         if (field === 'transaction_no') {
-          return 'FTHB-' + data['customer_code']
+          // Initialize tracker for this customer_code
+          if (!customerCodeTracker[data.customer_code]) {
+            customerCodeTracker[data.customer_code] = 1;
+          } else {
+            customerCodeTracker[data.customer_code]++;
+          }
+  
+          // Get the occurrence count
+          const occurrence = customerCodeTracker[data.customer_code];
+  
+          // Append "-01", "-02", etc. only if there are multiple occurrences
+          const suffix = customerCodeCounts[data.customer_code] > 1 ? `-${String(occurrence).padStart(2, '0')}` : "";
+  
+          return `FTHB-${data['customer_code']}${suffix}`;
         }
 
         if (field === 'destination_bank_account_no') {
+          if (data['เลขที่บัญชีการโอน'] == '-')
+            return '0000000000'
           return data['เลขที่บัญชีการโอน']
+        }
+
+        if (field === 'quantity') {
+          return data['จำนวนเงิน'] + '.00000000'
+        }
+
+        if (field === 'destination_country') {
+          return '0' + existTransfer[field]
+        }
+
+        if (field === 'customer_country') {
+          return '0' + existTransfer[field]
+        }
+
+        if (field === 'intermediary_id') {
+          return '0' + existTransfer[field]
         }
 
         if (field == 'destination_bank_short_name') {
@@ -766,10 +790,10 @@ function processDTWreport(fields) {
 
         if (field == 'destination_bank_code') {
           const result = banks.filter(bank => bank.bank.toLowerCase() == data['ธนาคาร'].toLowerCase());
-          return result[0]?.bank_code|| '-'
+          return result[0]?.bank_code || '-'
         }
 
-        if(field =='report_date'){
+        if (field == 'report_date') {
           return report_date
         }
 
@@ -860,23 +884,39 @@ function processDTWreport(fields) {
   processedData = processedData.concat(
     dtw.map(data =>
 
-      fields.map(field =>
-        { 
-          if(field == 'report_date'){
-            return report_date
-          }
-
-          if(field == 'transaction_date'){
-            return '2025-02-25'
-          }
-
-          if(field == 'destination_bank_short_name'){
-            return '-'
-          }
-          
-          return data[field] || ""
+      fields.map(field => {
+        if (field == 'report_date') {
+          return report_date
         }
-        ).join("|")
+
+        if (field == 'transaction_date') {
+          return '2025-02-25'
+        }
+
+
+        if (field === 'quantity') {
+          return data['quantity'] + '.00000000'
+        }
+
+        if (field === 'destination_country') {
+          return '0' + data[field]
+        }
+
+        if (field === 'customer_country') {
+          return '0' + data[field]
+        }
+
+        if (field === 'intermediary_id') {
+          return '0' + data[field]
+        }
+
+        if (field == 'destination_bank_short_name') {
+          return '-'
+        }
+
+        return data[field] || ""
+      }
+      ).join("|")
     )
   );
 
@@ -906,84 +946,84 @@ function parseCustomDate(dateStr) {
 function getBanks() {
   return [
     {
-      bank_code:'014',
+      bank_code: '014',
       bank: 'SCB',
       bank_short_name: 'SICOTHBK'
     },
     {
-      bank_code:'011',
+      bank_code: '011',
       bank: 'TMB',
       bank_short_name: 'TMBKTHBK'
     },
     {
-      bank_code:'004',
+      bank_code: '004',
       bank: 'KBANK',
       bank_short_name: 'KASITHBK'
     },
     {
-      bank_code:'002',
+      bank_code: '002',
       bank: 'BBL',
       bank_short_name: 'BKKBTHBK'
     },
     {
-      bank_code:'006',
+      bank_code: '006',
       bank: 'KTB',
       bank_short_name: 'KRTHTHBK'
     },
     {
-      bank_code:'006',
+      bank_code: '006',
       bank: 'TCRB',
       bank_short_name: 'THCETHB1'
     },
     {
-      bank_code:'069',
+      bank_code: '069',
       bank: 'KK',
       bank_short_name: 'KKPBTHBK'
     },
     {
-      bank_code:'030',
+      bank_code: '030',
       bank: 'GSB',
       bank_short_name: 'GSBATHBK'
     },
     {
-      bank_code:'025',
+      bank_code: '025',
       bank: 'BAY',
       bank_short_name: 'AYUDTHBK'
     },
     {
-      bank_code:'022',
+      bank_code: '022',
       bank: 'CIMBT',
       bank_short_name: 'UBOBTHBK'
     },
     {
-      bank_code:'024',
+      bank_code: '024',
       bank: 'UOBT',
       bank_short_name: 'UOVBTHBK'
     },
     {
-      bank_code:'073',
+      bank_code: '073',
       bank: 'LH BANK',
       bank_short_name: 'LAHRTHB2'
     },
     {
-      bank_code:'024',
+      bank_code: '024',
       bank: 'UOB',
       bank_short_name: 'UOVBTHBK'
     }, {
-      bank_code:'069',
+      bank_code: '069',
       bank: 'KKP',
       bank_short_name: 'KKPBTHBK'
     },
     {
-      bank_code:'022',
+      bank_code: '022',
       bank: 'CIMB',
       bank_short_name: 'UBOBTHBK'
     },
-    {   bank_code:'030',bank: 'ออมสิน', bank_short_name: 'GSBATHBK' },
-    { bank_code:'071',bank: 'ไทยเครดิต', bank_short_name: 'THCETHB1' },
-    { bank_code:'033',bank: 'GHB', bank_short_name: 'GOHUTHB1' },
-    { bank_code:'011',bank: 'TTB', bank_short_name: 'TMBKTHBK' },
-    { bank_code:'067',bank: 'TISCO', bank_short_name: 'TFPCTHB1' }
+    { bank_code: '030', bank: 'ออมสิน', bank_short_name: 'GSBATHBK' },
+    { bank_code: '071', bank: 'ไทยเครดิต', bank_short_name: 'THCETHB1' },
+    { bank_code: '033', bank: 'GHB', bank_short_name: 'GOHUTHB1' },
+    { bank_code: '011', bank: 'TTB', bank_short_name: 'TMBKTHBK' },
+    { bank_code: '067', bank: 'TISCO', bank_short_name: 'TFPCTHB1' }
   ]
 }
 
@@ -1028,8 +1068,8 @@ const yyyymmdd = 20250310;
 const templates = [
   //"ICOPortal_DA_CusData_{dbdNo}_{assetId}_{yyyymmdd}.csv",
   "ICOPortal_DA_DTWreport_{dbdNo}_{assetId}_{yyyymmdd}.csv",
-   "ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv",
-"ICOPortal_DA_CusWallet_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  "ICOPortal_DA_CusOutstanding_{dbdNo}_{assetId}_{yyyymmdd}.csv",
+  "ICOPortal_DA_CusWallet_{dbdNo}_{assetId}_{yyyymmdd}.csv",
   // "ICOPortal_DA_Identification_{dbdNo}_{assetId}_{yyyymmdd}.csv",
   // "ICOPortal_DA_ProfilePortal_{dbdNo}_{assetId}_{yyyymmdd}.csv"
 ];
